@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
   <head>
-    <title>Point Estimation Methods and Intervals</title>
+    <title>Intervals</title>
     <meta charset="utf-8" />
     <meta name="author" content="Adi Sarid" />
     <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
@@ -11,11 +11,11 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Point Estimation Methods and Intervals
-## Lecture #2
+# Intervals
+## Lecture #3
 ### Adi Sarid
 ### Tel-Aviv University
-### updated: 2019-11-03
+### updated: 2019-11-08
 
 ---
 
@@ -53,635 +53,69 @@ th, td {
    padding: 5px;
 }
 
-small-slide {
+.small-slide {
    font-size: 70% !important;
 }
 
+.image-50 img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
+.right-plot {
+  width: 60%;
+  float: right;
+  padding-left: 1%;
+}
 &lt;/style&gt;
 
 
 
-
----
-
-# Reminder from previous lecture (1/3)
+# Reminder from previous lecture
 
 Last lesson we talked about:
 
 --
 
-   * How data analysis is conducted (import -&gt; tidy -&gt; transform, visualize, model -&gt; communicate)
+   * Biased/unbiased estimators, variance of estimators (and standard errors)
 
 --
 
-   * About R, very broadly (RStudio, Rmd, scripts, functions, packages)
+   * We discussed three methods of estimation
    
---
-
-   * What a tidy data set looks like (rows = observations, columns = variables, aka features)
-   
---
-
-   * Variable types (numeric, date, logical, factor - category, ordinal)
-   
---
-
-   * Demonstration of the grammer of graphics (`ggplot2`)
-   
---
-
-Then, we also discussed **theory**:
-
---
-
-   * What are point estimates, i.e.:
-   
-      * `\(\theta\)` is a *population parameter*
+      1. Maximum Likelihood Estimation (MLE) `\(L(\theta)=\prod_i{f(x_i;\theta)}\)`; examples: Poisson, Normal.
       
-      * Estimated by the statistic `\(\hat{\Theta}\)`, a *point estimator*
+      2. Bayesian method `\(\pi(\theta|x)=\frac{f(x|\theta)\pi(\theta)}{\int{f(x|\theta)\pi(\theta)}d\theta}\)`; examples: discrete/uniform for estimating a population proportion
       
-      * When it is computed (from a sample), it is called a *point estimate* 
-      
----
-
-# Reminder from previous lecture (2/3)
-
-   * Desired properties of point estimates are:
-   
-      * Unbiased: `\(E\hat{\Theta} - \theta = 0\)`
-      * Low variance: `\(V(\hat{\Theta})\)` as low as possible
-
---
-   
-I've shown that: 
-
-   * The average `\(\bar{X}=\sum_{i=1}^n{x_i}\)` is unbiased: 
-      * `\(E[\bar{X}] = \mu\)`
-      
-   * Its variance is `\(V(\bar{X})=\frac{\sigma^2}{n}\)`
-   
-   * In fact, it is the *Minimum Variance Unbiased Estimate* (proof out of scope)
+      3. The moment method (use `\(EX^k=\sum{x_i^k}\)` across `\(k=1,2,\ldots\)`)
    
 --
+
+   * The central limit theorem: `\(Z=\frac{\bar{X}-\mu}{\sigma/\sqrt{n}}\)` converges to a normal disribution
+
+--
+
+   * We started talking about statistical intervals `\(P(\hat{\Theta}_l&lt;\theta&lt;\hat{\Theta}_u)=1-\alpha\)`
    
-   * We've also seen the bias-variance decomposition, i.e. the Mean Square Error is decomposed into:
-      
-`$$E[(\hat{\Theta}-\theta)^2]=V(\hat{\Theta}) + E(\hat{\Theta} - \theta)^2$$`
-
 ---
 
-# Reminder from previous lecture (3/3)
+# Before we dive into statistical intervals
 
-We talked about *quantiles*/*percentiles*/*median*:
+## Two questions:
 
-   * A quantile `\(q(f)\)` of a sample is the **value** for which a specified fraction `\(f\)` of the data values is `\(\leq q(f)\)`
-   * Note that quartile, quantile, percentile are related/interchangable: 
+### What is a good election survey?
    
-      * 2 quartile = .5 quantile = 50 percentile = median
-      
-## To sum up
+### What is a bad election survey?
 
-   * The average: `\(\bar{X}=\sum_{i=1}^n{x_i}\)` is an **unbiased** estimator of `\(E[X]=\mu\)`
-   
-   * Sample variance: `\(S^2=\frac{\sum_{i=1}^n(x_i-\bar{X})^2}{n-1}\)` **unbiased** estimator of `\(V(X)=\sigma^2\)`
-   
-      * `\(V(X)=E(X-E[X])^2=EX^2-(EX)^2\)`
-   
-   * Standard deviation: `\(S\)` is a **biased** estimator for `\(\sigma\)` (can't enjoy both worlds)
+--
 
-
+We'll get back into this later on today.
 
 ---
 
-# Why `\(S^2\)` is an unbiased estimator to `\(\sigma^2\)`?
-
-`\(S^2\)` is unbiased (you actually saw this in the exercise):
-
-`$$ES^2=\frac{1}{n-1}E{\sum_{i=1}^n(X_i-\bar{X})^2}=\frac{1}{n-1}E{\sum_{i=1}^n(x_i^2+\bar{X}^2-2\bar{X}x_i)}$$`
-
---
-
-`$$=\frac{1}{n-1}E\left(\sum_{i=1}^nx_i^2-n\bar{X}^2\right)=\frac{1}{n-1}\left[\sum_{i=1}^n{Ex_i^2-nE(\bar{X}^2)}\right]$$`
-
---
-
-Using the fact that `\(E(x_i^2)=\mu^2+\sigma^2\)` and that `\(E(\bar{X}^2)=\mu^2+\sigma^2/n\)` we have:
-
---
-
-`$$E(S^2)=\frac{1}{n-1}\sum_{i=1}^n(\mu^2+\sigma^2)-n(\mu^2+\sigma^2/n)=\sigma^2$$`
-
-`$$\square$$`
-
----
-
-# Why is `\(S\)` a biased estimator to `\(\sigma\)`?
-
-We need to show that `\(ES\neq\sigma\)`. Let 
-
-`$$S=\sqrt{\sum_{i=1}^n{\frac{(x_i-\bar{X})^2}{n-1}}}$$`
-
---
-
-Consider that `\(0&lt;\operatorname{Var}(S)=E[S^2]-(E[S])^2\)` (this is true for any RV, specifically `\(S\)` in this case)
-
---
-
-Hence
-
-`$$(ES)^2&lt;E[S^2] \Leftrightarrow ES&lt;\sqrt{E[S^2]}=\sigma$$` 
-
-`$$\square$$`
-
-In certain cases, we can directly compute this bias (i.e. what is `\(ES-\sigma\)`), for example, if we assume `\(X\sim N(\mu,\sigma)\)`, then:
-
-`$$\sigma-E(S)\cong\frac{\sigma}{4n}$$` (see [here](https://stats.stackexchange.com/questions/11707/why-is-sample-standard-deviation-a-biased-estimator-of-sigma)).
-
----
-
-# Estimating `\(S^2\)` - demonstration
-
-Take a normal distribution with
-.tiny[
-
-```r
-set.seed(0)
-rv &lt;- tibble(x = rnorm(500, mean = 0, sd = 5)) %&gt;% 
-  mutate(cumsum_x = cumsum(x),
-         n = seq_along(x),
-         average_x = cumsum_x/n,
-         sample_var = (1/(n-1))*cumsum(x^2-average_x^2)) %&gt;% 
-  slice(-1)
-
-ggplot(rv, aes(x = n, y = sample_var)) + 
-  geom_line() + 
-  geom_hline(aes(yintercept=25), color = "red") +
-  theme_bw()
-```
-
-&lt;img src="01-Estimation-methods-and-Intervals_files/figure-html/s as a function of n-1.png" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-# Short quiz - identify the distributions
-
-Before we continue, **identify the distributions using the plot**, and write them down on a piece of paper, in pairs.
-
-Here are your options: Normal, Chi-square, Bernulli, Exponential, Poisson.
-
-&lt;img src="01-Estimation-methods-and-Intervals_files/figure-html/recognize the distribution quiz-1.png" style="display: block; margin: auto;" /&gt;
-
----
-
-# The Central Limit Theorem
-
-If `\(\bar{X}\)` is the mean of a random sample of size `\(n\)` taken from a population with mean `\(\mu\)` and finite variance `\(\sigma^2\)`, then the limiting form of the distribution of 
-
-`$$Z = \frac{\bar{X}-\mu}{\sigma/\sqrt{n}}$$`
-
-As `\(n\rightarrow\infty\)` is the standard normal distribution `\(N(0,1)\)`
-
-For most purpuses, `\(n\geq30\)` is considered "large enough" (as a rule-of-thumb). 
-
-Lets look at an example of exponential distribution: `\(\operatorname{Exp}(\lambda=1)\)`. **What are `\(\mu\)` and `\(\sigma\)`?**
-
----
-
-# The distribution of `\(\bar{X}\)` with varying `\(n\)`
-
-With `\(\operatorname{Exp}(\lambda=1)\)` we have `\(\mu=\sigma=1/\lambda=1\)`
-
-Try increasing `sample_size` and see what happens to the chart.
-
---
-
-.tiny[
-
-```r
-sample_size &lt;- 1
-lambda &lt;- 1
-
-suppressMessages(
-rv_binom &lt;- matrix(rexp(n = sample_size*1000, rate = lambda), nrow = sample_size, ncol = 1000) %&gt;% 
-  as_tibble(.name_repair = "unique") %&gt;% 
-  pivot_longer(cols = everything(), names_to = "var", values_to = "value") %&gt;% 
-  group_by(var) %&gt;% 
-  summarize(mean = mean(value)) %&gt;% 
-  mutate(standardized = (mean - 1/lambda)/((1/lambda)/sqrt(sample_size))))
-
-ggplot(rv_binom, aes(x = standardized)) + 
-  geom_histogram(bins = 100) + 
-  theme_bw()
-```
-
-&lt;img src="01-Estimation-methods-and-Intervals_files/figure-html/example how a sum of exp becomes normal-1.png" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-# Methods of point estimation
-
-So far we discussed some estimators (i.e., `\(\bar{X}, S^2\)`), and the desired properties they hold. But how can we find additional estimators (new statistics)?
-
-We will show three methods:
-
-   * Maximum Liklihood Estimation (MLE)
-   
-   * The Bayesian method
-   
-   * Moment method
-
----
-
-# Maximum Likelihood Estimation (MLE)
-
-An important and very common approach to solving estimation problems in statistics. The idea is as follows:
-
-If you want to estimate some population parameter `\(\theta\)`, use the most **likely** value. 
-
---
-
-Let `\(f(x;\theta)\)` represent the density function of `\(X\)`. Given a sample `\(x_1,\dots,x_n\)` in which `\(x_i\)`'s are independent, we can write the liklihood of the sample:
-
-`$$L(\theta)=f(x_1,\ldots,x_n;\theta)=f(x_1;\theta)\times\ldots\times f(x_n;\theta)=\prod_{i=1}^nf(x_i;\theta)$$`
-
---
-
-   * The product (multiplication) can be used thanks to the assumption of independence of the sampled observations.
-   
-   * `\(L(\theta)\)` is a function of `\(\theta\)` (only) once the sample has been set.
-
-   * In the discrete case we will use `\(P(X_1 = x_1,\ldots,X_n=x_n;\theta)\)`. The likelihood is the same as the probability of obtaining the sample.
-
----
-
-# MLE example - Poisson distribution (discrete)
-
-The Poisson distribution is used to represent a counting processes. I.e., the number of accumulated events is distributed Poisson.
-
---
-
-`$$P(X=x)=\frac{\lambda^xe^{-\lambda}}{x!}$$`
-
---
-.small[
-
-```r
-poiss_demonstration &lt;- crossing(x = 0:25, pois_rate = c(0.5, 1, 2, 10)) %&gt;% 
-   mutate(dpois = map2_dbl(x, pois_rate, dpois))
-
-ggplot(poiss_demonstration, aes(x = x, y = dpois, fill = factor(pois_rate))) +
-   geom_col() + 
-   facet_wrap(~pois_rate) + 
-   theme_bw()
-```
-
-&lt;img src="01-Estimation-methods-and-Intervals_files/figure-html/demonstration poisson-1.png" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-# MLE example - Poisson distribution (discrete) - cont.
-
-Assume we sample the number of arrivals to the hospital during `\(n\)` weekdays: `\(x_1,\ldots,x_n\)`. The number of arrivals is distributed with a `\(\text{Poisson}(\lambda)\)` distribution.
-
---
-
-Then, the likelihood is:
-
-`$$L(\lambda) = \prod_{i=1}^n{(\lambda^{x_i}e^{-\lambda})/x_i!}$$`
-
---
-
-Taking logarithm we have:
-
-`$$\log L(\lambda)=\sum_{i=1}^n{\left(x_i\log\lambda-\lambda\log(e)-\log(x_i!)\right)}$$`
-
---
-
-Now we require an extremum, i.e. `\(d\log L(\lambda)/d\lambda=0\)`:
-
-`$$\sum_{i=1}^n{x_i/\lambda^*}-n=0 \Longrightarrow \lambda^*=\bar{X}$$`
-
---
-
-This is indeed a maximum `\(\frac{d^2\log{L(\lambda)}}{d\lambda^2}=-\left(\sum_{i=1}^n{\frac{x_i}{\lambda}}\right)&lt;0\)`
-
----
-
-# MLE example - Bernulli distribution
-
-Let's assume we conducted `\(n\)` experiments each with probability `\(p\)` for success and `\(q=1-p\)` for failure. These are Bernulli i.i.d variables.
-
-`$$B_i=\left\{\begin{array}{ll}1 &amp; \text{w.p. } p\\ 0 &amp; \text{w.p. } 1-p\end{array}\right.$$`
-
-Assume we got `\(v\)` success, `\(n-v\)` failures. 
-
-   * What is the Liklihood?
-   * What is the log-Liklihood?
-   * Find the optimal `\(\hat{p}\)`.
-
-You will do this in the homework.
-
----
-
-# Maximum Liklihood Estimate - Normal distribution
-
-The previous examples dealt with discrete distributions. What happens in the continuous case?
-
---
-
-Assume `\(X_1,\ldots,X_n\sim \mathcal{N}(\mu,\sigma)\)` i.i.d distributed. We sample `\(x_1,\ldots,x_n\)` and we are looking for an MLE for `\(\mu\)` and `\(\sigma^2\)`:
-
---
-
-The likelihood:
-
-`$$L(\mu)=\prod_{i=1}^n\left(\frac{e^{\frac{-(x_i - \mu)^2}{2 \sigma^2}}}{\sqrt{2\pi}\sigma}\right)=\frac{1}{(2\pi\sigma^2)^{n/2}}\exp{\left[-\frac{1}{2}\sum_{i=1}^n{\left(\frac{x_i-\mu}{\sigma}\right)^2}\right]}$$`
-
---
-
-Taking `\(\log\)` we get:
-
-`$$\log L(\mu,\sigma^2)=-\frac{n}{2}\log(2\pi)-\frac{n}{2}\log(\sigma^2)-\frac{1}{2}\sum_{i=1}^n\left(\frac{x_i-\mu}{\sigma}\right)^2$$`
-
---
-
-`$$\frac{\partial\log L(\mu,\sigma^2)}{\partial \mu}=\sum_{i=1}^n{\frac{x_i-\mu}{\sigma}} \Longrightarrow \mu^*=\bar{X}$$`
-
----
-
-# Maximum Liklihood Estimate - Normal distribution - cont.
-
-Now, derivative by `\(\sigma\)` we obtain:
-
-`$$\frac{\partial\log L(\mu,\sigma^2)}{\partial (\sigma^2)}=-\frac{n}{2}\frac{1}{\sigma^2}+\frac{1}{2}\frac{1}{\sigma^4}\sum_{i=1}^n(x_i-\mu)^2$$`
-
-From here we get:
-
-`$$(\sigma^*)^2=\frac{1}{n}\sum_{i=1}^n(x_i-\mu)^2$$`
-
---
-
-As you have seen, `\((\sigma^*)^2\)` is a **biased** estimator to the variance (the unbiased estimator `\(s^2\)` had `\(n-1\)` in the denominator).
-
----
-
-# The Bayesian method (reminder: Bayes' rule)
-
-First, a reminder about **Bayes' rule**.
-
-The definition of conditional probability is given by:
-
---
-
-`$$P(A|B)=\frac{P(A\cap B)}{P(B)}$$`
-For `\(P(B)&gt;0\)`. Then, since: `\(P(A\cap B)=P(B\cap A)\)` we also have:
-
---
-
-`$$P(A|B)=\frac{P(B|A)P(A)}{P(B)}$$`
-
---
-
-If we have a partition `\(E_1,\ldots, E_k\)` (i.e., `\(\cup E_i=\Omega\)` , `\(E_i\cap E_j=\phi\)`) we get:
-
-`$$P(B) = P(B|E_1)P(E_1)+\ldots+P(B|E_k)P(E_k)$$`
-
---
-
-And finally, we arrive at the general form of Bayes' theorem:
-
-`$$P(E_1|B)=\frac{P(B|E_1)P(E_1)}{P(B|E_1)P(E_1)+\ldots+P(B|E_k)P(E_k)}$$`
-
----
-
-# Bayesian Methods of Estimation
-
-We have a parameter `\(\theta\)` for a population with a distribution `\(f(x|\theta)\)`. We assume some prior distribution `\(\pi(\theta)\)` (represents our belief on the unknown value of `\(\theta\)`).
-
-Assume a sample `\(x=(x_1,\ldots,x_n)\)`, then the sampling distribution is `\(f(x|\theta)\)`.
-
-We want to use the sampling distribution (obtained from data), and our prior belief in order to yield a *posterior* distribution, i.e., an estimate, of `\(\theta\)`.
-
-We use Bayes' rule
-
-`$$\pi(\theta|x)=\frac{f(x|\theta)\pi(\theta)}{g(x)}$$`
-
-Where:
-
-`$$g(x)=\left\{\begin{array}{ll}\sum_\theta f(x|\theta)\pi(\theta) &amp; \theta\text{ discrete}\\\int_{-\infty}^\infty f(x|\theta)\pi(\theta)d\theta &amp; \theta\text{ continuous}\end{array}\right.$$`
-
----
-
-# Bayesian Methods of Estimation - Example (1/3)
-
-We have a machine with either 10% or 20% defects (w.p. 0.6 or 0.4 respectively). 
-.center[
-| p        	| 0.1 	| 0.2 	|
-|----------	|-----	|-----	|
-| `\(\pi(p)\)` 	| 0.6 	| 0.4 	|
-]
-
-
---
-
-We sampled the assembly line with two items, `\(n=2\)`, and find out `\(x\)` defects `\(x\in\{0,1,2\}\)`. What is the Bayesian estimator `\(\pi(p|x)\)` for `\(p\)`?
-
-`$$\pi(p|x)=\frac{f(x|p)\pi(p)}{g(x)}$$`
-
---
-
-Let's compute all the elements. `\(x\)` is binomially distributed. Its probability function is:
-
-`$$f(x|p)=\left(\begin{array}{l}2\\x\end{array}\right)p^x(1-p)^{2-x}$$`
-
---
-
-The marginal distribution of `\(x\)` is:
-
-`$$g(x)=\sum_p{\pi(p)\times f(x|p)}=\pi(0.1)\times f(x|0.1)+\pi(0.2)\times f(x|0.2)=0.6\times f(x|0.1) + 0.4\times f(x|0.2)$$`
-
----
-
-# Bayesian Methods of Estimation - Example (2/3)
-
-We can easily compute the binomial probability using `R`.
-
-.small[
-
-```r
-f_x_p &lt;- function(x, p){
-   dbinom(x, size = 2, prob = p)
-}
-
-pi_p &lt;- function(p){
-   if (p == 0.1){
-      0.6
-   } else if (p == 0.2){
-      0.4
-   } else {
-      0
-   }
-}
-
-g_x &lt;- function(x){
- pi_p(0.1)*f_x_p(x, 0.1) + 
-      pi_p(0.2)*f_x_p(x, 0.2)
-}
-
-pi_p_x &lt;- function(p, x){
-   (f_x_p(x, p)*pi_p(p)) / (g_x(x))
-}
-```
-]
-
----
-
-# Bayesian Method of Estimation - Example (3/3)
-
-Now we can compute `\(\pi(p|x)\)` for any possible combination of `\(p\)` and sample yielding `\(x\)` defects.
-
-```r
-res &lt;- tibble(p = c(0.1, 0.1, 0.1, 0.2, 0.2, 0.2),
-              x = c(0:2, 0:2)) %&gt;% 
-   mutate(pi_p_x = map2_dbl(p, x, pi_p_x))
-
-knitr::kable(res, format = "html", padding = 3)
-```
-
-&lt;table&gt;
- &lt;thead&gt;
-  &lt;tr&gt;
-   &lt;th style="text-align:right;"&gt; p &lt;/th&gt;
-   &lt;th style="text-align:right;"&gt; x &lt;/th&gt;
-   &lt;th style="text-align:right;"&gt; pi_p_x &lt;/th&gt;
-  &lt;/tr&gt;
- &lt;/thead&gt;
-&lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.6549865 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.4576271 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.2727273 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 0.2 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.3450135 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 0.2 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.5423729 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:right;"&gt; 0.2 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 2 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.7272727 &lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-
----
-
-# Mean of the posterior distribution
-
-The mean of the posterior distribution `\(p^*=E_p[\pi(p|x)]\)` is called the **Bayes estimate of `\(p\)`**. In the previous example, if we find one defect (1 of 2 sampled) we get:
-
-`$$p^*=(0.1)\times0.46 + (0.2)\times0.54 \approx 0.154$$`
-
-Note the big difference from the classical estimator (the average). The average in this case is `\(\bar{p}=x/n=1/2=0.5\)`.
-
----
-
-# Bayesian methods - continuous example
-
-This time, we are going to assume that `\(p\)` can obtain any value within `\([0,1]\)`. 
-
-**First, answer (write on a piece of paper) in pairs:**
-
-   * What distribution should we use a-priori to describe the value of `\(p\)`?
-   
-      1. Normal with `\(\mu=0.5\)` and `\(\sigma = 0.001\)`
-      2. Uniform `\([0,1]\)`
-      3. Exponential `\(\operatorname{Exp}(\lambda=0.001)\)`
-   
-   * What is `\(\pi(p)\)`?
-      
-      * According to your answer to the previous question write `\(\pi(p)=\ldots\)`?
-
----
-
-# Bayesian methods - continuous example - cont.
-
-Uniform distribution! The others have a positive probability for values higher than `\(1\)`, and since our parameter `\(p\)` reflects distribution, it can only obtain values in `\([0,1]\)`.
-
-`$$\pi(p)=\left\{\begin{array}{ll}1 &amp; p\in[0,1]\\0 &amp; \text{Otherwise}\end{array}\right.$$`
-
-`$$\pi(p|x) = \frac{f(x|p)\pi(p)}{\int{f(x|p)\pi(p)dp}}=\frac{\left(\begin{array}{}2\\x\end{array}\right)p^x(1-p)^{2-x}}{\int_0^1{\left(\begin{array}{}2\\x\end{array}\right)p^x(1-p)^{2-x}dp}}$$`
-
---
-
-Take for example `\(x=1\)` then:
-
-`$$p^*=\int_0^1\pi(p|x=1)dp=3\left(\begin{array}{l}2\\1\end{array}\right)\int_0^1{p\times p^1(1-p)^{2-1}dp}=1/2$$`
-
-   * Exactly the same we would have got with `\(\bar{p}=x/n=1/2\)`.
-
----
-
-# Method of Moments Estimation
-
-In this method, we use knowledge about the moments of the distribution (i.e. `\(E[X], E[X^2], E[X^3], \ldots\)`), express the parameters as functions of these moments, and then use the sample moments to compute our estimator.
-
-Let `\(f(x)\)` be a density function for `\(X_1,\ldots,X_n\)`, then:
-
-| Moment | Continuous | Discrete | Sample |
-|--------|------------|----------|--------|
-| `\(E[X]\)` | `\(\int{xf(x)dx}\)` | `\(\sum_k{kP(X=k)}\)` | `\((1/n)\sum_{i=1}^{n}{x_i}\)` |
-| `\(E[X^2]\)` | `\(\int{x^2f(x)dx}\)` | `\(\sum_k{k^2P(X=k)}\)` | `\((1/n)\sum_{i=1}^{n}{x_i^2}\)` |
-| `\(E[X^m]\)` | `\(\int{x^mf(x)dx}\)` | `\(\sum_k{k^mP(X=k)}\)` | `\((1/n)\sum_{i=1}^{n}{x_i^m}\)` |
-
-The sample mean `\(\bar{X}=(1/n)\sum_{i=1}^n{x_i}\)` is the moment estimator of the population mean.
-
----
-
-# Method of Moments - Example - the Normal disribution
-
-The first moment is `\(E[X]=\mu\)`, hence `\(\hat{\mu}=\bar{X}\)` is the moment estimator for the population mean.
-
---
-
-The second moment is `\(E[X^2] = \mu^2 + \sigma^2\)` require:
-
-`$$\mu^2 + \sigma^2 = \frac{1}{n}\sum_{i=1}^n{x_i^2}$$`
-
---
-
-Set `\(\mu^2=\left(\frac{1}{n}\sum_{i=1}^n{x_i}\right)^2\)`
-
---
-
-`$$\hat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n{x_i^2} - \left(\frac{1}{n}\sum_{i=1}^n{x_i}\right)^2=\frac{\sum{x_i^2}-(\sum{x_i})^2/n}{n}=\frac{\sum_{i=1}^n(x_i-\bar{X})^2}{n}$$`
-
-Again, this is a biased estimator for `\(\sigma^2\)`, usually we will use `\(s^2\)` seen earlier.
-
-In the homework, you will be requested to use the moment method on two distributions (the exponential distribution and another distribution) to find estimators for parameters of the distributions.
-
----
-
-# Statistical Intervals
+# Statistical Intervals (Montgomery chapter 8)
 
 We discussed point estimates, however
 
@@ -709,17 +143,80 @@ For `\(\alpha\in(0,1)\)`. For example, when we set `\(\alpha=0.05\)`, we call th
 
 ---
 
-# Sanity check
+# Motivation (example) road trippin' (1/3)
 
-**What would be a 100% confidence interval**? 
+   * Let's say we're planning a logistic operation 
+   
+--
+   
+   * We need to be in a specific place at a specific time
 
-   * I.e., what would be `\(\hat{\Theta}_l, \hat{\Theta}_u\)` such that:
-
-`$$P(\hat{\Theta}_l &lt; \theta &lt; \hat{\Theta}_u) = 1$$`
+--
+   
+   * We must not be late, but we can be a little early
 
 --
 
-Setting `\(\hat{\Theta}_l=-\infty, \hat{\Theta}_u=\infty\)` gives us a 100% confidence interval (i.e., the `\(\theta\)` is a real number).
+   * When should we depart?
+
+---
+
+# Motivation (example) road trippin' (2/3)
+
+Waze is cool, but... [https://www.waze.com/livemap](https://www.waze.com/livemap)
+
+   * Not very robust for advance planning
+
+   * Specifically, we're only seeing a point estimate (average arrival time?) and not the distribution
+   
+   * It's not that accurate either (30min to TLV in the rush hour?)
+   
+.image-50[
+![](images/waze_not_accurate.jpg)
+]
+
+---
+
+# Motivation (example) road trippin' (3/3)
+
+.small-slide[
+Assume we have Waze's raw data (needs to be **focused on the relevant time**, unbiased sample). We can compute a confidence interval.
+]
+.small[
+
+```r
+set.seed(0)
+drive_time &lt;- tibble(duration = rexp(100, rate = 1/65))
+# the rate is 1/65 cars per min. It means that it takes 65 minutes to get through
+```
+]
+.right-plot[
+&lt;img src="02-Intervals_files/figure-html/plot the exp dist-1.png" style="display: block; margin: auto;" /&gt;
+]
+.small[
+
+```r
+t.test(drive_time$duration, 
+       alternative = "two.sided", 
+       mu = mean(drive_time$duration))
+```
+
+```
+## 
+## 	One Sample t-test
+## 
+## data:  drive_time$duration
+## t = 0, df = 99, p-value = 1
+## alternative hypothesis: true mean is not equal to 67.08955
+## 95 percent confidence interval:
+##  54.91621 79.26290
+## sample estimates:
+## mean of x 
+##  67.08955
+```
+]
+
+To be 95% sure, we need to plan for **80 minutes' drive**.
 
 ---
 
@@ -745,7 +242,51 @@ Using the fact that for the normal distribution `\(z_{1-\alpha/2}=-z_{\alpha/2}\
 
 ---
 
-# Example - determining the sample size from a desired confidence range
+# Confidence Interval for Normal Distribution with Unknown Variance
+
+In this case, we use our estimator `\(S\)` to compute our statistic and confidence interval.
+
+`$$T = \frac{\bar{X}-\mu}{S/\sqrt{n}}$$`
+
+The statistic `\(T\)` has a student's t-distribution with `\(n-1\)` degrees of freedom. I.e.:
+
+`$$P(-t_{\alpha/2,n} &lt; T &lt; t_{\alpha/2,n})=1-\alpha$$`
+
+.center[
+&lt;img src="02-Intervals_files/figure-html/example for the t distribution-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Back to the drive duration example
+
+In the previous example we used `t.test`, let's break it down.
+.small[
+
+```r
+n &lt;- NROW(drive_time)
+
+# t.test(drive_time$duration, 
+#        alternative = "two.sided", 
+#        mu = mean(drive_time$duration))
+
+mean_duration &lt;- mean(drive_time$duration)
+sd_duration &lt;- sd(drive_time$duration)
+t_test_lims &lt;- qt(p = c(0.025, 0.975), df = 99)
+
+# This time, manually computed
+
+mean_duration + t_test_lims*sd_duration/sqrt(100)
+```
+
+```
+## [1] 54.91621 79.26290
+```
+]
+
+---
+
+# Determining the sample size from a desired confidence range
 
 If we want to have a confidence interval with a range not exceeding `\(\pm r\)`, we can use:
 
@@ -761,25 +302,413 @@ Then,
 
 `$$n\geq \left(z_{\alpha/2}\frac{\sigma}{r}\right)^2$$`
 
-Ever wondered why surveys have `\(n=500\)` respondents? it comes from a `\(\pm 4.4\%\)` margin of error with a `\(95\%\)` confidence interval (using a binomial distribution). 
+--
 
-Maybe in the next homework.
+Or (if variance is unknown):
+
+`$$n\geq \left(t_{\alpha/2,\operatorname{n-1}}\frac{S}{r}\right)^2$$`
 
 ---
 
-# Confidence Interval for Normal Distribution with Unknown Variance
+# What sample do we need in order to have a range `\(r\)` for the drive duration?
 
-In this case, we use our estimator `\(S\)` to compute our statistic and confidence interval.
+We want to have a 95% confidence interval in the drive duration, which is not longer than `\(\pm4\)` minutes, i.e., `\(2r=8\)` minutes.
+.tiny[
 
-`$$T = \frac{\bar{X}-\mu}{S/\sqrt{n}}$$`
+```r
+*desired_n &lt;- ((qt(p = 0.975, df = 99))*sd_duration/ 4 )^2
+desired_n
+```
 
-The statistic `\(T\)` has a student's t-distribution with `\(n-1\)` degrees of freedom. I.e.:
+```
+## [1] 926.1894
+```
 
-`$$P(-t_{\alpha/2,n} &lt; T &lt; t_{\alpha/2,n})=1-\alpha$$`
+```r
+set.seed(0) # illustration that this works
+drive_time2 &lt;- tibble(duration = rexp(desired_n, rate = 1/65))
+t.test(drive_time2$duration, 
+       alternative = "two.sided", 
+       mu = mean(drive_time$duration))
+```
 
-.center[
-&lt;img src="01-Estimation-methods-and-Intervals_files/figure-html/example for the t distribution-1.png" style="display: block; margin: auto;" /&gt;
+```
+## 
+## 	One Sample t-test
+## 
+## data:  drive_time2$duration
+## t = -0.29535, df = 925, p-value = 0.7678
+## alternative hypothesis: true mean is not equal to 67.08955
+## 95 percent confidence interval:
+##  62.42485 70.53391
+## sample estimates:
+## mean of x 
+##  66.47938
+```
 ]
+
+---
+
+# One sided versus two sided confidence intervals
+
+   * We've discussed two-sided confidence intervals, i.e., `\(\theta\in[\hat{\Theta}_l,\hat{\Theta}_u]\)`
+
+--
+
+   * Sometimes we prefer a one-sided confidence interval, for example when we one side is irrelevant, i.e. we want:
+   
+      * `\(P(\hat\Theta_l&lt;\theta) = 1-\alpha\)`, or
+      
+      * `\(P(\theta &lt; \hat\Theta_u) = 1-\alpha\)`
+
+--
+
+   * This can be accomplished by using the right cutoff of the distribution, e.g.: `\(z_\alpha\)` instead of using `\(z_{\alpha/2}\)`
+   
+      * `\(\bar{X} - z_\alpha\sigma/\sqrt{n} \leq \mu\)`, or
+      
+      * `\(\mu\leq \bar{X} + z_\alpha\sigma/\sqrt{n}\)`
+
+---
+
+# One sided versus two sided confidence intervals - illlustration
+
+.tiny[
+
+```r
+normal_dist &lt;- tibble(z = seq(-5,5,0.01)) %&gt;% 
+   mutate(density = dnorm(z),
+          cumulative = pnorm(z))
+two_sided &lt;- ggplot(normal_dist, aes(x = z, y = density)) + 
+   geom_line(size = 1) + geom_area(data = normal_dist %&gt;% 
+                                      filter(cumulative &lt;= 0.975 &amp; cumulative &gt;= 0.025), 
+                                   fill = "#1b9e77") +
+   theme_bw() + ggtitle("Two sided 95% c.i")
+one_sided_less &lt;- ggplot(normal_dist, aes(x = z, y = density)) + 
+   geom_line(size = 1) + geom_area(data = normal_dist %&gt;% filter(cumulative &lt;= 0.95), 
+                                   fill = "#d95f02") +
+   theme_bw() + ggtitle("One sided 95% c.i (less than)")
+# one_sided_greater &lt;- ggplot(normal_dist, aes(x = z, y = density)) + 
+#    geom_line(size = 1) + geom_area(data = normal_dist %&gt;% filter(cumulative &gt;= 0.05),
+#                                    fill = "#7570b3") +
+#    theme_bw() + ggtitle("One sided 95% c.i (greater than)")
+gridExtra::grid.arrange(two_sided, one_sided_less, nrow = 2)
+```
+
+&lt;img src="02-Intervals_files/figure-html/illustration of two vs one sided ci-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# One sided versus two sided (in the example)
+
+**Discussion**: 
+
+   * In the example of drive duration what type of confidence interval would you use? why?
+      * Two sided  /  One sided `\(\mu\leq C_L\)`  /  One sided `\(\mu\geq C_U\)`
+      
+.tiny[
+
+```r
+t.test(drive_time$duration, alternative = "two.sided", mu = mean(drive_time$duration))
+```
+
+```
+## 
+## 	One Sample t-test
+## 
+## data:  drive_time$duration
+## t = 0, df = 99, p-value = 1
+## alternative hypothesis: true mean is not equal to 67.08955
+## 95 percent confidence interval:
+##  54.91621 79.26290
+## sample estimates:
+## mean of x 
+##  67.08955
+```
+
+```r
+t.test(drive_time$duration, alternative = "less", mu = mean(drive_time$duration))
+```
+
+```
+## 
+## 	One Sample t-test
+## 
+## data:  drive_time$duration
+## t = 0, df = 99, p-value = 0.5
+## alternative hypothesis: true mean is less than 67.08955
+## 95 percent confidence interval:
+##     -Inf 77.2762
+## sample estimates:
+## mean of x 
+##  67.08955
+```
+
+```r
+# t.test(drive_time$duration, alternative = "greater", mu = mean(drive_time$duration))
+```
+]
+
+---
+
+# General method to drive a confidence interval
+
+We would like a general recipe that would work to generate confidence intervals for various types of distributions (not just the normal/student's t we've seen so far).
+
+   1. Find a statiatic `\(g(x_1, x_2, \ldots, x_n;\theta)\)`
+   
+   2. The probability distribution of `\(g(x_1, x_2, \ldots, x_n;\theta)\)` should not depend on `\(\theta\)` (like in the `\(Z\)` case)
+
+--
+
+Set:
+
+`$$P(C_L\leq g(x_1, \ldots, x_n; \theta) \leq C_U) = 1-\alpha$$`
+
+--
+
+Since the probability does not depend on `\(\theta\)` (property 2.), we can manipulate the expression inside the probability function:
+
+`$$P\left(L(x_1,\ldots,x_n)\leq \theta \leq U(x_1,\ldots,x_n)\right) = 1-\alpha$$`
+
+---
+
+# Confidence intervals on variance and standard deviation of a normal population
+
+Let `\(X_1,\ldots,X_n\)` be a random sample from a normal distribution `\(\mathcal{N}(\mu,\sigma)\)`, and set `\(S^2\)` the sample variance `\(S^2=\frac{1}{n-1}\sum(X_i-\bar{X})^2\)` then
+
+`$$X^2=\frac{(n-1)S^2}{\sigma^2}$$`
+
+Has a chi-square `\(\chi^2\)` distribution with `\(n-1\)` degrees of freedom. 
+
+Alternatively, `\(\chi^2\)` can also be defined as a sum of squared **standard** normally distributed random variables `\(N_i\sim\mathcal{N}(0,1)\)` (the equivalence of these two definitions is out of our scope). Set 
+
+`$$Y=N_1^2+N_2^2+\ldots+N_k^2$$`
+Then `\(Y\sim \chi^2_k\)`.
+
+---
+
+# The mean and variance of a `\(\chi^2_k\)` distribution
+
+What is the mean and variance of `\(\chi^2_{k}\)`?
+
+--
+
+For this, I use the second definition:
+
+`$$Y=N_1^2+N_2^2+\ldots+N_k^2$$`
+
+Then, consider that `\(EN_i^2 = EN_i^2-(EN_i)^2 + (EN_i)^2 = \sigma^2+\mu^2 = 1 + 0\)`
+
+   * `\(EY = \sum EN_i^2 = k\)`
+   
+--
+
+The fourth moment of a normal distribution can be computed directly, and is given by `\(3\sigma^4\)`, which for `\(\mathcal{N}(0,1)\)` is equal `\(3\sigma^4 = 3\times1^4=3\)`, hence
+
+   * `\(\operatorname{Var}(Y)=\sum\operatorname{Var}(N_i^2) = \sum EN_i^4-(EN_i^2)^2 = \sum(3-1)=2k\)`
+
+---
+
+# Illustration of the `\(\chi^2_k\)` for various `\(k\)`
+
+.tiny[
+
+```r
+chi_sq &lt;- crossing(x = seq(0, 30, by = 0.1), k = c(2, 3, 5, 10)) %&gt;% 
+   mutate(density = map2_dbl(x, k, dchisq))
+
+ggplot(chi_sq, aes(x = x, y = density, color = factor(k))) + 
+   geom_line(size = 1) + 
+   theme_bw()
+```
+
+&lt;img src="02-Intervals_files/figure-html/chi square illustration-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+**Question:** What happens as `\(k\rightarrow\infty\)` and why? (think about the central limit theorem)
+
+--
+
+The `\(\chi^2\)` distribution is very useful in many statistical contexts. One of them is confidence intervals for `\(\sigma^2\)`.
+
+---
+
+# A confidence interval for `\(\sigma^2\)` and for `\(\sigma\)`
+.small-slide[
+   * If `\(s^2\)` is the sample variance from a random sample of `\(n\)` observations 
+   
+   * From a normal distribution with unknown variance `\(\sigma^2\)` 
+   
+   * We can use the fact that `\((n-1)s^2/\sigma^2\)` is `\(\chi^2_{n-1}\)` distributed for a confidence interval for `\(\sigma^2\)` and for `\(\sigma\)`
+
+`$$P\left(\frac{(n-1)s^2}{\chi^2_{\alpha/2,n-1}}\leq\sigma^2\leq\frac{(n-1)s^2}{\chi^2_{1-\alpha/2,n-1}}\right) = 1-\alpha$$`
+]
+.small[
+
+```r
+df &lt;- 5
+chi_sq %&gt;% filter(k == df) %&gt;% 
+   ggplot(aes(x = x, y = density)) + 
+   geom_line() + 
+   geom_vline(xintercept = qchisq(c(0.025, 0.975), df), color = "red") +
+   theme_bw()
+```
+
+&lt;img src="02-Intervals_files/figure-html/confidence interval using chi square-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Confidence interval for a population proportion
+
+A common use of confidence intervals is for polling (survey results). 
+
+Who are you going to vote to in the next election? 
+
+   * Let's say there is a candidate B.
+   
+   * Survey results with `\(n=500\)` show that `\(\hat{p}=200/500=40\%\)`. 
+   
+   * Would B cross the 50% threshold?
+   
+--
+
+In essense we are dealing with a population proportion (the proportion of B's voters in the gen. pop.).
+
+--
+
+Consider the following random variable, using the central limit theorem (*show on whiteboard*) we can show it is normally distributed in the limit.
+
+`$$Z = \frac{X - np}{\sqrt{np(1-p)}} = \frac{\hat{p}-p}{\sqrt{\frac{p(1-p)}{n}}}$$`
+
+--
+
+To show the CLT applies, we consider the fact that a Binomial random variable is a sum of Bernullis.
+
+---
+
+# Would B be prime minister?
+
+We can use a one-sided 95% confidence interval `\(\alpha = 0.05\)` to see if B surpasses the 50%.
+
+`$$P\left(Z\geq z_{\alpha}\right) = P\left(\frac{\hat{p}-p}{\sqrt{p(1-p)/n}}\geq z_{\alpha}\right) = P\left(p\leq\hat{p}+z_{1-\alpha}\sqrt{p(1-p)/n}\right)$$`
+
+We replace `\(p(1-p)\)` with `\(\hat{p}(1-\hat{p})\)`, similarly to how we replaced `\(\sigma\)` with `\(s\)`. If `\(n\)` is large enough, this yields a good approximation.
+
+Our confidence interval is then:
+
+`$$p\leq\hat{p}+z_{1-\alpha}\sqrt{\hat{p}(1-\hat{p})/n} \Longrightarrow p\leq0.4+1.645\times\sqrt{(0.4\times0.6)/500} \approx 43.7\%$$`
+
+---
+
+# Margin of error versus sample size
+
+In the previous slide, if we were to produce a two-sided confidence interval, the result would have changed to the following range:
+
+`$$\hat{p}\pm z_{\alpha/2}\sqrt{\hat{p}(1-\hat{p})/n}$$`
+
+The expression `\(\hat{p}(1-\hat{p})\)` has it's maximum in 0.5, hence we can "enlarge" the range to:
+
+`$$\hat{p}\pm \frac{z_{\alpha/2}}{2\sqrt{n}}$$`
+
+Setting `\(\alpha=0.05, n=500\)`, the term `\(\pm\frac{1.96}{2\sqrt{500}}\approx\pm4.4\%\)`, which is what is commonly reported in surveys as an error up to 4.4%.
+
+--
+
+Examples [here](https://bechirot22.bechirot.gov.il/election/Decisions/Pages/Surveys.aspx)
+
+--
+
+**Question 1**: Why are there errors in election surveys if the margin of error is up to `\(\pm4.4\%\)`?
+
+--
+
+**Question 2**: What is the sampling method? (random? layers? "convinience" sampling?)
+
+---
+
+# The required sample size as a function of the margin of error
+
+We can plot the required sample size `\(n\)` as a function of the margin of error.
+.small[
+
+```r
+moe_n &lt;- tibble(moe = seq(0.015, 0.1, by = 0.005),
+                sample_size = (qnorm(0.975)/(2*moe))^2)
+
+ggplot(moe_n, aes(moe, sample_size)) + 
+   geom_line() + scale_x_continuous(labels = scales::percent) +
+   theme_bw() + xlab("Margin of error") + ylab("Sample size")
+```
+
+&lt;img src="02-Intervals_files/figure-html/sample size as a function of the margin of error-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Prediction interval (1/3)
+
+So far we've discussed confidence intervals, however, sometimes we are interested in a *prediction* interval, for a new observation.
+
+   * We have a sample of `\(x_1,\ldots,x_n\)`, random sample from a normal distribution
+
+--
+
+   * We wish to predict the value `\(x_{n+1}\)` for a future observation
+   
+--
+
+   * The most obvious choice for a *point prediction* of `\(x_{n+1}\)` is `\(\bar{X}\)`
+
+--
+
+   * The prediction error is given by `\(x_{n+1}-\bar{X}\)` (unbiased prediction)
+   
+   * The variance of the prediction error is `\(\operatorname{Var}(x_{n+1}-\bar{X})=\sigma^2+\sigma^2/n=\sigma^2\left(1+1/n\right)\)`
+   
+--
+
+   * Since `\(\bar{X}\sim\mathcal{N}(\mu,\sigma/\sqrt{n})\)` and `\(x_{n+1}\sim\mathcal{N}(\mu,\sigma)\)` and the two are independent, we have:
+   
+--
+
+   * `\(x_{n+1}-\bar{X}\sim\mathcal{N}(0, \sigma\sqrt{1+1/n})\)`
+   
+---
+
+# Prediction interval (2/3)
+
+Now, we can follow the same steps we used for a confidence interval, replacing `\(\sigma\)` with `\(s\)`
+
+`$$T = \frac{x_{n+1}-\bar{X}}{s\sqrt{1+\frac{1}{n}}}$$`
+
+Using the student's t distribution we can provide the following prediction interval
+
+`$$\bar{X}-t_{\alpha/2,n-1}\times s\sqrt{1+\frac{1}{n}}\leq x_{n+1} \leq \bar{X} + t_{\alpha/2,n-1}\times s\sqrt{1+\frac{1}{n}}$$`
+
+---
+
+# Prediction interval (3/3)
+
+**Important distinctions** between confidence intervals and prediction intervals:
+
+   * In confidence intervals we are providing an interval for a **population parameter**
+   
+   * In prediction intervals we are providing an interval for the **next actual value**
+
+--
+
+   * The length of the confidence interval converges to 0
+   
+   * The length of prediction interval converges to `\(2z_{\alpha/2}\sigma\)`.
+
+   * There will always be uncertainty associated with the next value, `\(x_{n+1}\)`, even when the average `\(\bar{X}\)` is based on a very large sample, and is extremely close to `\(\mu\)`.
+
+--
+
+**Question:** Reflecting back on the problem we started the lecture with (the drive duration problem). Should we have used a confidence interval or a prediction interval instead?
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
