@@ -1,45 +1,48 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
   <head>
-    <title>Intervals</title>
+    <title>Hypothesis Tests</title>
     <meta charset="utf-8" />
     <meta name="author" content="Adi Sarid" />
     <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
     <link href="libs/remark-css/rutgers-fonts.css" rel="stylesheet" />
+    <link href="libs/countdown/countdown.css" rel="stylesheet" />
+    <script src="libs/countdown/countdown.js"></script>
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Intervals
-## Lecture #3
+# Hypothesis Tests
+## Lecture #4
 ### Adi Sarid
 ### Tel-Aviv University
-### updated: 2019-11-10
+### updated: 2019-11-17
 
 ---
 
 
 &lt;style type="text/css"&gt;
-.remark-slide-content {
-  font-size: 28px;
-  padding: 20px 80px 20px 80px;
-}
 .remark-code, .remark-inline-code {
   background: #f0f0f0;
 }
 .remark-code {
   font-size: 24px;
 }
-.huge .remark-code { /*Change made here*/
-  font-size: 200% !important;
+
+.huge { 
+  font-size: 200%;
 }
-.tiny .remark-code { /*Change made here*/
-  font-size: 50% !important;
+.tiny .remark-code {
+  font-size: 50%;
 }
 
-.small .remark-code {
-   font-size: 75% !important;
+.small .remark-code{
+   font-size: 85% !important;
+}
+
+.small {
+   font-size: 85% !important;
 }
 
 .remark-slide-content {
@@ -65,10 +68,16 @@ th, td {
 }
 
 .right-plot {
-  width: 60%;
-  float: right;
-  padding-left: 1%;
+   width: 60%;
+   float: right;
+   padding-left: 1%;
+   bottom: 0px;
+   right: 0px;
+   position: absolute;
 }
+
+
+
 &lt;/style&gt;
 
 
@@ -79,640 +88,37 @@ Last lesson we talked about:
 
 --
 
-   * Biased/unbiased estimators, variance of estimators (and standard errors)
-
---
-
-   * We discussed three methods of estimation
+   * Confidence intervals, i.e.:
    
-      1. Maximum Likelihood Estimation (MLE) `\(L(\theta)=\prod_i{f(x_i;\theta)}\)`; examples: Poisson, Normal.
-      
-      2. Bayesian method `\(\pi(\theta|x)=\frac{f(x|\theta)\pi(\theta)}{\int{f(x|\theta)\pi(\theta)}d\theta}\)`; examples: discrete/uniform for estimating a population proportion
-      
-      3. The moment method (use `\(EX^k=\sum{x_i^k}\)` across `\(k=1,2,\ldots\)`)
-   
---
-
-   * The central limit theorem: `\(Z=\frac{\bar{X}-\mu}{\sigma/\sqrt{n}}\)` converges to a normal disribution
-
---
-
-   * We started talking about statistical intervals `\(P(\hat{\Theta}_l&lt;\theta&lt;\hat{\Theta}_u)=1-\alpha\)`
-   
----
-
-# Before we dive into statistical intervals
-
-## Two questions:
-
-### What is a good election survey?
-   
-### What is a bad election survey?
-
---
-
-We'll get back into this later on today.
-
----
-
-# Statistical Intervals (Montgomery chapter 8)
-
-We discussed point estimates, however
-
-   * Even if everything works "properly" (a random sample, unbiased estimator), it is unlikely that we will reach the exact parameter value
-   
-   * As the sample increases accuracy improves; but
-
---
-   
-   * Sometimes we are interested in a *Confidence Interval*
-   
-   * An interval of the form `\(\hat{\Theta}_l &lt; \theta &lt; \hat{\Theta}_u\)` where 
-
---
-   
-   * The lower and upper bounds `\(\hat{\Theta}_l, \hat{\Theta}_u\)` depend on the statistic `\(\hat{\Theta}\)`
-
---
-
-In a probabalistic notation, we are looking for `\(\hat{\Theta}_l, \hat{\Theta}_u\)` such that:
-
-`$$P(\hat{\Theta}_l &lt; \theta &lt; \hat{\Theta}_u) = 1-\alpha$$`
-
-For `\(\alpha\in(0,1)\)`. For example, when we set `\(\alpha=0.05\)`, we call this a 95% confidence interval for `\(\theta\)`.
-
----
-
-# Motivation (example) road trippin' (1/3)
-
-   * Let's say we're planning a logistic operation 
-   
---
-   
-   * We need to be in a specific place at a specific time
-
---
-   
-   * We must not be late, but we can be a little early
-
---
-
-   * When should we depart?
-
----
-
-# Motivation (example) road trippin' (2/3)
-
-Waze is cool, but... [https://www.waze.com/livemap](https://www.waze.com/livemap)
-
-   * Not very robust for advance planning
-
-   * Specifically, we're only seeing a point estimate (average arrival time?) and not the distribution
-   
-   * It's not that accurate either (30min to TLV in the rush hour?)
-   
-.image-50[
-![](images/waze_not_accurate.jpg)
-]
-
----
-
-# Motivation (example) road trippin' (3/3)
-
-.small-slide[
-Assume we have Waze's raw data (needs to be **focused on the relevant time**, unbiased sample). We can compute a confidence interval.
-]
-.small[
-
-```r
-set.seed(0)
-drive_time &lt;- tibble(duration = rexp(100, rate = 1/65))
-# the rate is 1/65 cars per min. It means that it takes 65 minutes to get through
-```
-]
-.right-plot[
-&lt;img src="02-Intervals_files/figure-html/plot the exp dist-1.png" style="display: block; margin: auto;" /&gt;
-]
-.small[
-
-```r
-t.test(drive_time$duration, 
-       alternative = "two.sided", 
-       mu = mean(drive_time$duration))
-```
-
-```
-## 
-## 	One Sample t-test
-## 
-## data:  drive_time$duration
-## t = 0, df = 99, p-value = 1
-## alternative hypothesis: true mean is not equal to 67.08955
-## 95 percent confidence interval:
-##  54.91621 79.26290
-## sample estimates:
-## mean of x 
-##  67.08955
-```
-]
-
-To be 95% sure, we need to plan for **80 minutes' drive**.
-
----
-
-# Confidence Interval for Normal Distribution with Known Variance
-
-We previously mentioned the central limit theorem and that 
-
-`$$Z = \frac{\bar{X}-\mu}{\sigma/\sqrt{n}}$$`
-
-Is normally distributed as `\(n\rightarrow\infty\)`. Hence:
-
-`$$P(z_{\alpha/2} &lt; Z &lt; z_{1-\alpha/2}) = 1-\alpha$$`
-
---
-
-`$$P(z_{\alpha/2} &lt; \frac{\bar{X}-\mu}{\sigma/\sqrt{n}} &lt; z_{1-\alpha/2}) = 1-\alpha$$`
-
---
-
-Using the fact that for the normal distribution `\(z_{1-\alpha/2}=-z_{\alpha/2}\)`:
-
 `$$P(\bar{X} - z_{\alpha/2}\frac{\sigma}{\sqrt{n}} &lt; \mu &lt; \bar{X} + z_{\alpha/2}\frac{\sigma}{\sqrt{n}}) = 1-\alpha$$`
 
----
-
-# Confidence Interval for Normal Distribution with Unknown Variance
-
-In this case, we use our estimator `\(S\)` to compute our statistic and confidence interval.
-
-`$$T = \frac{\bar{X}-\mu}{S/\sqrt{n}}$$`
-
-The statistic `\(T\)` has a student's t-distribution with `\(n-1\)` degrees of freedom. I.e.:
-
-`$$P(-t_{\alpha/2,n} &lt; T &lt; t_{\alpha/2,n})=1-\alpha$$`
-
-.center[
-&lt;img src="02-Intervals_files/figure-html/example for the t distribution-1.png" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-# Back to the drive duration example
-
-In the previous example we used `t.test`, let's break it down.
-.small[
-
-```r
-n &lt;- NROW(drive_time)
-
-# t.test(drive_time$duration, 
-#        alternative = "two.sided", 
-#        mu = mean(drive_time$duration))
-
-mean_duration &lt;- mean(drive_time$duration)
-sd_duration &lt;- sd(drive_time$duration)
-t_test_lims &lt;- qt(p = c(0.025, 0.975), df = 99)
-
-# This time, manually computed
-
-mean_duration + t_test_lims*sd_duration/sqrt(100)
-```
-
-```
-## [1] 54.91621 79.26290
-```
-]
-
----
-
-# Determining the sample size from a desired confidence range
-
-If we want to have a confidence interval with a range not exceeding `\(\pm r\)`, we can use:
-
-`$$\bar{X}+z_{\alpha/2}\frac{\sigma}{\sqrt{n}}-\left(\bar{X}-z_{\alpha/2}\frac{\sigma}{\sqrt{n}}\right) \leq 2r$$`
-
 --
 
-Then,
-
-`$$\sqrt{n}\geq z_{\alpha/2}\frac{2\sigma}{2r}$$`
-
---
-
-`$$n\geq \left(z_{\alpha/2}\frac{\sigma}{r}\right)^2$$`
-
---
-
-Or (if variance is unknown):
-
-`$$n\geq \left(t_{\alpha/2,\operatorname{n-1}}\frac{S}{r}\right)^2$$`
-
----
-
-# What sample do we need in order to have a range `\(r\)` for the drive duration?
-
-We want to have a 95% confidence interval in the drive duration, which is not longer than `\(\pm4\)` minutes, i.e., `\(2r=8\)` minutes.
-.tiny[
-
-```r
-*desired_n &lt;- ((qt(p = 0.975, df = 99))*sd_duration/ 4 )^2
-desired_n
-```
-
-```
-## [1] 926.1894
-```
-
-```r
-set.seed(0) # illustration that this works
-drive_time2 &lt;- tibble(duration = rexp(desired_n, rate = 1/65))
-t.test(drive_time2$duration, 
-       alternative = "two.sided", 
-       mu = mean(drive_time$duration))
-```
-
-```
-## 
-## 	One Sample t-test
-## 
-## data:  drive_time2$duration
-## t = -0.29535, df = 925, p-value = 0.7678
-## alternative hypothesis: true mean is not equal to 67.08955
-## 95 percent confidence interval:
-##  62.42485 70.53391
-## sample estimates:
-## mean of x 
-##  66.47938
-```
-]
-
----
-
-# One sided versus two sided confidence intervals
-
-   * We've discussed two-sided confidence intervals, i.e., `\(\theta\in[\hat{\Theta}_l,\hat{\Theta}_u]\)`
-
---
-
-   * Sometimes we prefer a one-sided confidence interval, for example when we one side is irrelevant, i.e. we want:
+   * We've seen confidence intervals for
    
-      * `\(P(\hat\Theta_l&lt;\theta) = 1-\alpha\)`, or
+      * Normal distribution (for `\(\mu\)` and for `\(\sigma\)`)
       
-      * `\(P(\theta &lt; \hat\Theta_u) = 1-\alpha\)`
-
---
-
-   * This can be accomplished by using the right cutoff of the distribution, e.g.: `\(z_\alpha\)` instead of using `\(z_{\alpha/2}\)`
-   
-      * `\(\bar{X} - z_\alpha\sigma/\sqrt{n} \leq \mu\)`, or
+      * Using Student's T (variance unknown)
       
-      * `\(\mu\leq \bar{X} + z_\alpha\sigma/\sqrt{n}\)`
-
----
-
-# One sided versus two sided confidence intervals - illlustration
-
-.tiny[
-
-```r
-normal_dist &lt;- tibble(z = seq(-5,5,0.01)) %&gt;% 
-   mutate(density = dnorm(z),
-          cumulative = pnorm(z))
-two_sided &lt;- ggplot(normal_dist, aes(x = z, y = density)) + 
-   geom_line(size = 1) + geom_area(data = normal_dist %&gt;% 
-                                      filter(cumulative &lt;= 0.975 &amp; cumulative &gt;= 0.025), 
-                                   fill = "#1b9e77") +
-   theme_bw() + ggtitle("Two sided 95% c.i")
-one_sided_less &lt;- ggplot(normal_dist, aes(x = z, y = density)) + 
-   geom_line(size = 1) + geom_area(data = normal_dist %&gt;% filter(cumulative &lt;= 0.95), 
-                                   fill = "#d95f02") +
-   theme_bw() + ggtitle("One sided 95% c.i (less than)")
-# one_sided_greater &lt;- ggplot(normal_dist, aes(x = z, y = density)) + 
-#    geom_line(size = 1) + geom_area(data = normal_dist %&gt;% filter(cumulative &gt;= 0.05),
-#                                    fill = "#7570b3") +
-#    theme_bw() + ggtitle("One sided 95% c.i (greater than)")
-gridExtra::grid.arrange(two_sided, one_sided_less, nrow = 2)
-```
-
-&lt;img src="02-Intervals_files/figure-html/illustration of two vs one sided ci-1.png" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-# One sided versus two sided (in the example)
-
-**Discussion**: 
-
-   * In the example of drive duration what type of confidence interval would you use? why?
-      * Two sided  /  One sided `\(\mu\leq C_L\)`  /  One sided `\(\mu\geq C_U\)`
+      * Binomial case (the election survey example)
       
-.tiny[
-
-```r
-t.test(drive_time$duration, alternative = "two.sided", mu = mean(drive_time$duration))
-```
-
-```
-## 
-## 	One Sample t-test
-## 
-## data:  drive_time$duration
-## t = 0, df = 99, p-value = 1
-## alternative hypothesis: true mean is not equal to 67.08955
-## 95 percent confidence interval:
-##  54.91621 79.26290
-## sample estimates:
-## mean of x 
-##  67.08955
-```
-
-```r
-t.test(drive_time$duration, alternative = "less", mu = mean(drive_time$duration))
-```
-
-```
-## 
-## 	One Sample t-test
-## 
-## data:  drive_time$duration
-## t = 0, df = 99, p-value = 0.5
-## alternative hypothesis: true mean is less than 67.08955
-## 95 percent confidence interval:
-##     -Inf 77.2762
-## sample estimates:
-## mean of x 
-##  67.08955
-```
-
-```r
-# t.test(drive_time$duration, alternative = "greater", mu = mean(drive_time$duration))
-```
-]
-
----
-
-# General method to drive a confidence interval
-
-We would like a general recipe that would work to generate confidence intervals for various types of distributions (not just the normal/student's t we've seen so far).
-
-   1. Find a statiatic `\(g(x_1, x_2, \ldots, x_n;\theta)\)`
-   
-   2. The probability distribution of `\(g(x_1, x_2, \ldots, x_n;\theta)\)` should not depend on `\(\theta\)` (like in the `\(Z\)` case)
-
---
-
-Set:
-
-`$$P(C_L\leq g(x_1, \ldots, x_n; \theta) \leq C_U) = 1-\alpha$$`
-
---
-
-Since the probability does not depend on `\(\theta\)` (property 2.), we can manipulate the expression inside the probability function:
-
-`$$P\left(L(x_1,\ldots,x_n)\leq \theta \leq U(x_1,\ldots,x_n)\right) = 1-\alpha$$`
-
----
-
-# Confidence intervals on variance and standard deviation of a normal population
-
-Let `\(X_1,\ldots,X_n\)` be a random sample from a normal distribution `\(\mathcal{N}(\mu,\sigma)\)`, and set `\(S^2\)` the sample variance `\(S^2=\frac{1}{n-1}\sum(X_i-\bar{X})^2\)` then
-
-`$$X^2=\frac{(n-1)S^2}{\sigma^2}$$`
-
-Has a chi-square `\(\chi^2\)` distribution with `\(n-1\)` degrees of freedom. 
-
-Alternatively, `\(\chi^2\)` can also be defined as a sum of squared **standard** normally distributed random variables `\(N_i\sim\mathcal{N}(0,1)\)` (the equivalence of these two definitions is out of our scope). Set 
-
-`$$Y=N_1^2+N_2^2+\ldots+N_k^2$$`
-Then `\(Y\sim \chi^2_k\)`.
-
----
-
-# The mean and variance of a `\(\chi^2_k\)` distribution
-
-What is the mean and variance of `\(\chi^2_{k}\)`?
-
---
-
-For this, I use the second definition:
-
-`$$Y=N_1^2+N_2^2+\ldots+N_k^2$$`
-
-Then, consider that `\(EN_i^2 = EN_i^2-(EN_i)^2 + (EN_i)^2 = \sigma^2+\mu^2 = 1 + 0\)`
-
-   * `\(EY = \sum EN_i^2 = k\)`
-   
---
-
-The fourth moment of a normal distribution can be computed directly, and is given by `\(3\sigma^4\)`, which for `\(\mathcal{N}(0,1)\)` is equal `\(3\sigma^4 = 3\times1^4=3\)`, hence
-
-   * `\(\operatorname{Var}(Y)=\sum\operatorname{Var}(N_i^2) = \sum EN_i^4-(EN_i^2)^2 = \sum(3-1)=2k\)`
-
----
-
-# Illustration of the `\(\chi^2_k\)` for various `\(k\)`
-
-.tiny[
-
-```r
-chi_sq &lt;- crossing(x = seq(0, 30, by = 0.1), k = c(2, 3, 5, 10)) %&gt;% 
-   mutate(density = map2_dbl(x, k, dchisq))
-
-ggplot(chi_sq, aes(x = x, y = density, color = factor(k))) + 
-   geom_line(size = 1) + 
-   theme_bw()
-```
-
-&lt;img src="02-Intervals_files/figure-html/chi square illustration-1.png" style="display: block; margin: auto;" /&gt;
-]
-
-**Question:** What happens as `\(k\rightarrow\infty\)` and why? (think about the central limit theorem)
-
---
-
-The `\(\chi^2\)` distribution is very useful in many statistical contexts. One of them is confidence intervals for `\(\sigma^2\)`.
-
----
-
-# A confidence interval for `\(\sigma^2\)` and for `\(\sigma\)`
-.small-slide[
-   * If `\(s^2\)` is the sample variance from a random sample of `\(n\)` observations 
-   
-   * From a normal distribution with unknown variance `\(\sigma^2\)` 
-   
-   * We can use the fact that `\((n-1)s^2/\sigma^2\)` is `\(\chi^2_{n-1}\)` distributed for a confidence interval for `\(\sigma^2\)` and for `\(\sigma\)`
-
-`$$P\left(\frac{(n-1)s^2}{\chi^2_{\alpha/2,n-1}}\leq\sigma^2\leq\frac{(n-1)s^2}{\chi^2_{1-\alpha/2,n-1}}\right) = 1-\alpha$$`
-]
-.small[
-
-```r
-df &lt;- 5
-chi_sq %&gt;% filter(k == df) %&gt;% 
-   ggplot(aes(x = x, y = density)) + 
-   geom_line() + 
-   geom_vline(xintercept = qchisq(c(0.025, 0.975), df), color = "red") +
-   theme_bw()
-```
-
-&lt;img src="02-Intervals_files/figure-html/confidence interval using chi square-1.png" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-# Confidence interval for a population proportion
-
-A common use of confidence intervals is for polling (survey results). 
-
-Who are you going to vote to in the next election? 
-
-   * Let's say there is a candidate B.
-   
-   * Survey results with `\(n=500\)` show that `\(\hat{p}=200/500=40\%\)`. 
-   
-   * Would B cross the 50% threshold?
-   
---
-
-In essense we are dealing with a population proportion (the proportion of B's voters in the gen. pop.).
-
---
-
-Consider the following random variable, using the central limit theorem (*show on whiteboard*) we can show it is normally distributed in the limit.
-
-`$$Z = \frac{X - np}{\sqrt{np(1-p)}} = \frac{\hat{p}-p}{\sqrt{\frac{p(1-p)}{n}}}$$`
-
---
-
-To show the CLT applies, we consider the fact that a Binomial random variable is a sum of Bernullis.
-
----
-
-# Would B be prime minister?
-
-We can use a one-sided 95% confidence interval `\(\alpha = 0.05\)` to see if B surpasses the 50%.
-
-`$$P\left(Z\geq z_{\alpha}\right) = P\left(\frac{\hat{p}-p}{\sqrt{p(1-p)/n}}\geq z_{\alpha}\right) = P\left(p\leq\hat{p}+z_{1-\alpha}\sqrt{p(1-p)/n}\right)$$`
-
-We replace `\(p(1-p)\)` with `\(\hat{p}(1-\hat{p})\)`, similarly to how we replaced `\(\sigma\)` with `\(s\)`. If `\(n\)` is large enough, this yields a good approximation.
-
-Our confidence interval is then:
-
-`$$p\leq\hat{p}+z_{1-\alpha}\sqrt{\hat{p}(1-\hat{p})/n} \Longrightarrow p\leq0.4+1.645\times\sqrt{(0.4\times0.6)/500} \approx 43.7\%$$`
-
----
-
-# Margin of error versus sample size
-
-In the previous slide, if we were to produce a two-sided confidence interval, the result would have changed to the following range:
-
-`$$\hat{p}\pm z_{\alpha/2}\sqrt{\hat{p}(1-\hat{p})/n}$$`
-
-The expression `\(\hat{p}(1-\hat{p})\)` has it's maximum in 0.5, hence we can "enlarge" the range to:
-
 `$$\hat{p}\pm \frac{z_{\alpha/2}}{2\sqrt{n}}$$`
 
-Setting `\(\alpha=0.05, n=500\)`, the term `\(\pm\frac{1.96}{2\sqrt{500}}\approx\pm4.4\%\)`, which is what is commonly reported in surveys as an error up to 4.4%.
-
 --
 
-Examples [here](https://bechirot22.bechirot.gov.il/election/Decisions/Pages/Surveys.aspx)
-
---
-
-**Question 1**: Why are there errors in election surveys if the margin of error is up to `\(\pm4.4\%\)`?
-
---
-
-**Question 2**: What is the sampling method? (random? layers? "convinience" sampling?)
-
----
-
-# The required sample size as a function of the margin of error
-
-We can plot the required sample size `\(n\)` as a function of the margin of error.
-.small[
-
-```r
-moe_n &lt;- tibble(moe = seq(0.015, 0.1, by = 0.005),
-                sample_size = (qnorm(0.975)/(2*moe))^2)
-
-ggplot(moe_n, aes(moe, sample_size)) + 
-   geom_line() + scale_x_continuous(labels = scales::percent) +
-   theme_bw() + xlab("Margin of error") + ylab("Sample size")
-```
-
-&lt;img src="02-Intervals_files/figure-html/sample size as a function of the margin of error-1.png" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-# Prediction interval (1/3)
-
-So far we've discussed confidence intervals, however, sometimes we are interested in a *prediction* interval, for a new observation.
-
-   * We have a sample of `\(x_1,\ldots,x_n\)`, random sample from a normal distribution
-
---
-
-   * We wish to predict the value `\(x_{n+1}\)` for a future observation
+   * Setting the sample size according to a confidence interval length, e.g.:
    
---
+`$$n\geq \left(z_{\alpha/2}\frac{\sigma}{r}\right)^2$$`
 
-   * The most obvious choice for a *point prediction* of `\(x_{n+1}\)` is `\(\bar{X}\)`
-
---
-
-   * The prediction error is given by `\(x_{n+1}-\bar{X}\)` (unbiased prediction)
+   * Prediction intervals
    
-   * The variance of the prediction error is `\(\operatorname{Var}(x_{n+1}-\bar{X})=\sigma^2+\sigma^2/n=\sigma^2\left(1+1/n\right)\)`
-   
---
-
-   * Since `\(\bar{X}\sim\mathcal{N}(\mu,\sigma/\sqrt{n})\)` and `\(x_{n+1}\sim\mathcal{N}(\mu,\sigma)\)` and the two are independent, we have:
-   
---
-
-   * `\(x_{n+1}-\bar{X}\sim\mathcal{N}(0, \sigma\sqrt{1+1/n})\)`
-   
----
-
-# Prediction interval (2/3)
-
-Now, we can follow the same steps we used for a confidence interval, replacing `\(\sigma\)` with `\(s\)`
-
-`$$T = \frac{x_{n+1}-\bar{X}}{s\sqrt{1+\frac{1}{n}}}$$`
-
-Using the student's t distribution we can provide the following prediction interval
+      * Used when we want to express the uncertainty of the *next observation*
 
 `$$\bar{X}-t_{\alpha/2,n-1}\times s\sqrt{1+\frac{1}{n}}\leq x_{n+1} \leq \bar{X} + t_{\alpha/2,n-1}\times s\sqrt{1+\frac{1}{n}}$$`
 
 ---
 
-# Prediction interval (3/3)
-
-**Important distinctions** between confidence intervals and prediction intervals:
-
-   * In confidence intervals we are providing an interval for a **population parameter**
-   
-   * In prediction intervals we are providing an interval for the **next actual value**
-
---
-
-   * The length of the confidence interval converges to 0
-   
-   * The length of prediction interval converges to `\(2z_{\alpha/2}\sigma\)`.
-
-   * There will always be uncertainty associated with the next value, `\(x_{n+1}\)`, even when the average `\(\bar{X}\)` is based on a very large sample, and is extremely close to `\(\mu\)`.
-
---
-
-**Question:** Reflecting back on the problem we started the lecture with (the drive duration problem). Should we have used a confidence interval or a prediction interval instead?
-
----
-
-# Hypothesis testing
+# Hypothesis testing (Montgomery chapter 9)
 
 A *statistical hypothesis* is a statement about the parameters of one or more populations.
 
@@ -742,7 +148,798 @@ The same situation can be descrived with different hypothesis (with a different 
 
 --
 
-In the next lecture we will discuss how to devise hypothesis tests, what are type-I and type-II errors, what is the meaning of rejecting a null hypothesis, what are p-values and what is the connection to the statistical intervals we were discussing.
+Today we will discuss how to devise hypothesis tests, what are type-I and type-II errors, what is the meaning of rejecting a null hypothesis, what are p-values and what is the connection to the statistical intervals we were discussing.
+
+---
+
+# First - an example
+
+Scan the following QR code (or visit the link) and answer the survey.
+
+[http://bit.ly/att_flu_ex](http://bit.ly/att_flu_ex)
+
+![](images/link_for_survey_example.png)
+
+<div class="countdown" id="timer_5dd0781a" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+--
+
+This is a copy of a true survey used in a research I did with a collegue.
+
+   * What do you think were our hypothesis in this survey?
+   
+   * What were we trying to accomplish?
+
+---
+
+# The Attractive Flu Shot (1/2)
+
+The survey has a number of versions, rendered to respondents randomly. There are five groups:
+
+   * Control (a "regular" message from the HMO)
+   
+   * Recommendation (for effectiveness of the shot, the health ministry recommends to take it early)
+   
+   * Stock (if you don't take an early shot, the stock may run out)
+   
+   * Cost (the shot would cost for patients taking it after December)
+   
+   * Benefit (if you take an early shot, you get some kind of incentive)
+
+--
+
+This psychological nudge leverages the *attraction effect*, i.e.: options *A* and *B* are not comparable, but when decoy *b* is added, and is comparable to *B*, we tend to choose *B* over *A*.
+
+&lt;img src="03-Hypothesis_tests_files/figure-html/nudge example-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# The Attractive Flu Shot (2/2)
+
+If you read Dan Arieli's books, you probably read about attraction.
+
+We have a lot of hypothesis in this research, but here is an example (the treatment increases vaccination intentions):
+
+   * Recommendation treatment:
+       
+      * `\(H_0\)`: `\(p_{\text{control}}=p_{\text{recommendation}}\)`
+      * `\(H_1\)`: `\(p_{\text{control}}&lt;p_{\text{recommendation}}\)`
+
+--
+
+   * Stock treatment:
+   
+      * `\(H_0\)`: `\(p_{\text{control}}=p_{\text{stock}}\)`
+      * `\(H_1\)`: `\(p_{\text{control}}&lt;p_{\text{stock}}\)`
+
+--
+      
+   * You get the hang of it...
+   
+--
+
+Additional hypothesis deal with the interaction of *certainty* and the attraction effect's influence.
+
+---
+
+# Back to theory of hypothesis testing
+
+Let's simplify things: say that the percent of patients taking flu vaccinations is about 20% (known based on previous years). We want to see if our experiment led to an increase in that percent, that is *significantly* higher.
+
+   * `\(H_0\)`: `\(p_\text{treatment} = 0.2\)`
+   
+   * `\(H_1\)`: `\(p_\text{treatment} &gt; 0.2\)`
+   
+--
+
+What would you say if we measure after the intervention the following rates...?
+
+   * `\(\hat{p} = 0.19\)`
+
+--
+
+   * `\(\hat{p} = 0.60\)`
+
+--
+   
+   * `\(\hat{p} = 0.25\)`
+   
+--
+
+We need a clear statistical *criteria* for deciding what is significant and what is not.
+
+--
+
+class: small-slide
+
+&lt;img src="03-Hypothesis_tests_files/figure-html/binomial distribution and criteria-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Two types of errors
+
+In order to set a decision rule, we need to consider two types of errors:
+
+   * **Type-I** error (aka False-positive): **rejecting** `\(H_0\)` when it is **true**.
+   
+   * **Type-II** error (aka False-negative): **failing** to reject `\(H_0\)` when it is **false**.
+   
+--
+
+In medical decision making, this would look like `\(H_0\)`: not pregnant
+.image-50[
+![](images/Type_IandType_II_errors.jpg)
+]
+[(source)](http://www.statisticssolutions.com/to-err-is-human-what-are-type-i-and-ii-errors/])
+
+---
+
+# Tradeoff between type-I and type-II errors
+
+### Type-I error
+
+The type-I error is also called the *significance level*, or `\(\alpha\)`-error.
+
+`$$\alpha = P(\text{Reject } H_0| H_0 \text{ True})$$`
+
+<div class="countdown" id="timer_5dd076d2" style="top:0;right:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">01</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+Questions:
+
+   * In the pregnancy classification example, what is an `\(\alpha=0\)` decision rule?
+   
+   * In the flu vaccination example, what is an `\(\alpha=0\)` decision rule?
+   
+--
+
+Answers:
+
+   * Always classify: not pregnant
+   
+   * Reject `\(H_0\)` when `\(\hat{p}=\pm\infty\)` (i.e. never reject `\(H_0\)`)
+
+--
+
+### Type-II error
+
+As the type-I error decreases the decision rule tends to prefer not rejecting `\(H_0\)` which leads to a higher type-II error
+
+`$$\beta=P(\text{Fail to reject } H_0| H_1 \text{ True})$$`
+
+---
+
+# General framework for hypothesis testing
+
+This is the procedure for hypothesis testing:
+
+   1. Identify the parameter of interest (i.e., proportion, expectancy, std, etc.)
+   
+   2. State the null hypothesis `\(H_0\)`
+   
+   3. Specify the alternative hypothesis `\(H_1\)` (one sided, two sided, etc.) 
+   
+   4. Choose significance level `\(\alpha\)`
+   
+   5. Determine what test statistic to use (e.g., `\(Z, T, X^2\)`)
+    
+   6. State the rejection region for the statistic
+   
+   7. Compute the sample quantities, plug-in into the test statistic and compute it
+   
+   8. Decide if `\(H_0\)` should be rejected based on 6-7
+   
+--
+
+Steps 1-4 must be done before starting the research (a-priori and not posteriori, we'll see why later on)
+
+---
+
+# Example for attraction effect hypothesis test decision rule (computation)
+
+Let's create an `\(\alpha=0.05\)` decision rule for classifying if the attraction effect worked in our experiment.
+
+--
+
+.small[
+  * The parameter is `\(p\)` (vaccinations after intervention)
+]
+.small[
+  * `\(H_0\)`: p = 0.2 (no attraction effect)
+]
+.small[
+  * `\(H_1\)`: p &gt; 0.2 (interevntion was successful)
+]
+.small[
+  * `\(\alpha = 0.05\)`
+]
+
+--
+
+.small[
+   
+   * The test statistic
+   
+`$$z_0 = \frac{x-np_0}{\sqrt{np_0(1-p_0)}}$$`
+
+   * Reject `\(H_0\)` if `\(z_0&gt;z_{1-\alpha}=1.96\)`
+   
+   * Compute `\(z_0\)`, given experiment results: `\(x=29\)` successes, `\(n = 100\)` subjects
+   
+`$$z_0 = \frac{29-100\times0.2}{\sqrt{100\times0.2\times0.8}}=2.25&gt;1.96 = z_{0.95}$$`
+]
+
+--
+
+.small[
+
+   * Conclusion: we reject `\(H_0\)`, and therefor claim that the experiment nudged patients to vaccinate.
+]
+
+---
+   
+# Example for attraction effect hypothesis test decision rule (code)
+
+.small[
+In R, we have a number of functions for this specific test. The previous computation is an **apporximation** (doesn't work for small `\(n\)` or extreme `\(p\)`). R can compute an approximate or an exact test.
+]
+
+.tiny[
+
+```r
+prop.test(x = 29, n = 100, p = 0.2, alternative = "greater")
+```
+
+```
+## 
+## 	1-sample proportions test with continuity correction
+## 
+## data:  29 out of 100, null probability 0.2
+## X-squared = 4.5156, df = 1, p-value = 0.01679
+## alternative hypothesis: true p is greater than 0.2
+## 95 percent confidence interval:
+##  0.2171785 1.0000000
+## sample estimates:
+##    p 
+## 0.29
+```
+
+```r
+binom.test(x = 29, n = 100, p = 0.2, alternative = "greater")
+```
+
+```
+## 
+## 	Exact binomial test
+## 
+## data:  29 and 100
+## number of successes = 29, number of trials = 100, p-value =
+## 0.02002
+## alternative hypothesis: true probability of success is greater than 0.2
+## 95 percent confidence interval:
+##  0.2158797 1.0000000
+## sample estimates:
+## probability of success 
+##                   0.29
+```
+]
+
+---
+
+# P-value versus specified `\(\alpha\)` value
+
+The results in R do not state a specific `\(z_0\)` but rather a **p-value**. What does p-value mean?
+
+   * By stating "we reject `\(H_0\)` at the `\(\alpha\)` level" we're omitting important information:
+
+      * How "significant" is our rejection? 
+      * Would this rejection hold when we vary `\(\alpha\)`? i.e.: Would our rejection hold at `\(\alpha=0.03\)`? `\(\alpha=0.0001\)`?
+
+--
+
+* The p-value is the smallest level of significance that would lead to rejection of the null hypothesis `\(H_0\)` with the given data.
+
+--
+
+`$$z_0 = \frac{29-100\times0.2}{\sqrt{100\times0.2\times0.8}}=2.25&gt;1.65 = z_{0.95} = z_{1-\alpha}$$`
+
+As long as `\(z_{1-\alpha}\)` &lt; 2.25 we would still reject `\(H_0\)`. Hence, the p-value is:
+
+`$$\text{p-value}=1-\Phi(z_0=2.25) = 0.012$$`
+
+.small[
+
+```r
+1-pnorm(q=2.25)
+```
+
+```
+## [1] 0.01222447
+```
+]
+
+---
+
+# Type-II error and determining the sample size (1/3)
+
+So far, we've only considered the choice of `\(\alpha\)`, i.e., the type-I error. However, we can also influence `\(\beta\)` by choice of the sample size `\(n\)` (and sometimes also by the type of test - *out of scope*).
+
+Let's see how change in `\(n\)` can increase the power (decrease the type-II error, `\(\beta\)`).
+
+--
+
+In our example, we had `\(p_0=0.2\)`, let's assume now that in the alternative hypothesis we use `\(p_1=p_0+\delta\)` (one sided "greater than" test).
+
+--
+
+`$$\beta=P(\text{Not rejecting } H_0 | H_1 \text{ true}) = P\left(\frac{x-np_0}{\sqrt{np_0(1-p_0)}}\leq z_{1-\alpha} | p_1=p_0+\delta\right)$$`
+
+--
+
+Note that
+
+`$$Z_0=\frac{x-np_0}{\sqrt{np_0(1-p_0)}}=\frac{x-(np_0 + n\delta)}{\sqrt{np_0(1-p_0)}} + \frac{\delta\sqrt{n}}{\sqrt{p_0(1-p_0)}}$$`
+
+Given `\(H_0\)`, the distribution of `\(Z_0\sim\mathcal{N}\left(\delta\sqrt{n/p_0(1-p_0)}, 1\right)\)`, hence
+
+---
+
+# Type-II error and determining the sample size (2/3)
+
+`$$\beta = P\left(\frac{x-(np_0+n\delta)}{\sqrt{np_0(1-p_0)}}&lt;z_{1-\alpha} - \frac{\delta\sqrt{n}}{\sqrt{p_0(1-p_0)}} | p_1=p_0+\delta\right) =$$` 
+`$$=P\left(\frac{x-(np_0+n\delta)}{\sqrt{n(p_0+\delta)(1-p_0-\delta)}}&lt;\frac{z_{1-\alpha}\sqrt{np_0(1-p_0)}-\delta n}{\sqrt{n(p_1+\delta)(1-p_1-\delta)}}\quad|\quad p_0+\delta\right)$$`
+
+`$$\beta=\Phi\left(\frac{z_{1-\alpha}\sqrt{np_0(1-p_0)}-\delta n}{\sqrt{n(p_0+\delta)(1-p_0-\delta)}}\right)$$`
+
+Now we can use `qnorm(beta)`, i.e.: `\(\Phi^{-1}(\beta)\)`, and given `\(\beta\)`, `\(p_0\)`, `\(\delta\)` compute `\(n\)`.
+
+--
+
+Luckily, we have a function for that. From package `pwr`, function `pwr.p.test`.
+
+---
+
+# Type-II error and determining the sample size (3/3)
+
+.tiny[
+
+```r
+beta &lt;- 0.2
+delta &lt;- 0.05
+alpha &lt;- 0.05
+p_0 &lt;- 0.2
+
+library(pwr)
+```
+
+```
+## Warning: package 'pwr' was built under R version 3.6.1
+```
+
+```r
+p_out &lt;- pwr::pwr.p.test(h = ES.h(p1 = p_0 + delta, p2 = p_0),
+                sig.level = alpha,
+                power = 1-beta,
+                alternative = "greater")
+p_out
+```
+
+```
+## 
+##      proportion power calculation for binomial distribution (arcsine transformation) 
+## 
+##               h = 0.1199023
+##               n = 430.044
+##       sig.level = 0.05
+##           power = 0.8
+##     alternative = greater
+```
+]
+.right-plot[
+&lt;img src="03-Hypothesis_tests_files/figure-html/plot-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# One-tailed versus two-tailed hypothesis
+
+So far, in our example, we've used a one-tailed hypothesis:
+
+   * `\(H_0\)`: `\(p=0.2\)`
+   * `\(H_1\)`: `\(p&gt;0.2\)`
+
+--
+   
+Depending on context, we can also have the other direction:
+   
+   * `\(H_0\)`: `\(p=0.2\)`
+   * `\(H_1\)`: `\(p&lt;0.2\)`
+   
+--
+
+Or a two sided hypothesis:
+
+   * `\(H_0\)`: `\(p=0.2\)`
+   * `\(H_1\)`: `\(p\neq0.2\)`
+   
+---
+
+# Two tailed hypothesis in the vaccination example
+
+If we were to use a two tailed hypothesis (the attraction had some effect, either increase or decrease vaccination rates), then our rejection criteria would become:
+
+   * Reject `\(H_0\)` if `\(z_0&gt;z_{1-\alpha/2}\)` or `\(z_0&lt;z_{\alpha/2}\)`
+
+--
+   
+   * I.e., for `\(\alpha=0.05\)`:
+   * Reject `\(H_0\)` if `\(z_0&gt;1.96\)` or `\(z_0&lt;-1.96\)`
+
+--
+
+The p-value would be in this case:
+
+`$$\text{p-value}=2[1-\Phi(|z_0|)] = 0.0244$$`
+
+
+```r
+2*(1-pnorm(q = 2.25))
+```
+
+```
+## [1] 0.02444895
+```
+
+---
+
+# The relationship between hypothesis testing and confidence intervals
+
+For confidence intervals of the proportion `\(p\)` we used:
+
+`$$1-\alpha = P\left(\hat{p}+z_{\alpha/2}\sqrt{p(1-p)/n}&lt;p&lt;\hat{p}+z_{1-\alpha/2}\sqrt{p(1-p)/n}\right)$$`
+
+.small[(We had similar confidence intervals for the average of a population normally distributed, for variance, etc.)]
+
+--
+
+Negating the expression `\(\ldots\)` within the probability `\(P(\ldots)\)`, we get:
+
+`$$\alpha = 1-(1-\alpha) = 1-P\left(\hat{p}+z_{\alpha/2}\sqrt{p(1-p)/n}&lt;p&lt;\hat{p}+z_{1-\alpha/2}\sqrt{p(1-p)/n}\right)=$$`
+
+`$$=P\left(\hat{p}+z_{\alpha/2}\sqrt{p(1-p)/n}\geq p\right)+P\left(p\leq\hat{p}+z_{1-\alpha/2}\sqrt{p(1-p)/n}\right)$$`
+
+--
+
+When the parameter under `\(H_0\)` is "outside" a 95% confidence interval based on the sample, the null hypothesis is rejected at `\(\alpha=0.05\)`
+
+   * E.g., `\(p=0.2\)` in the previous example is outside the confidence interval for `\(p\in(0.216,1)\)`.
+
+---
+
+# Hypothesis testing for expectancy - normal distribution
+
+In this example, we implement a two sided hypothesis test on the power lifting data.
+.tiny[
+
+```r
+# data source:
+#https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-10-08/ipf_lifts.csv
+male_deadlift &lt;- read_csv("data/ipf_lifts.csv", col_types = cols()) %&gt;% 
+   filter(sex == "M") %&gt;% 
+   select(best3deadlift_kg) %&gt;% 
+   filter(best3deadlift_kg &gt; 0) %&gt;% 
+   sample_n(500)
+
+ggplot(male_deadlift, aes(best3deadlift_kg)) + 
+   geom_histogram() + 
+   theme_bw()
+```
+
+```
+## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+```
+
+&lt;img src="03-Hypothesis_tests_files/figure-html/power lifting-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Hypothesis testing for expectancy - normal distribution - power lifting example
+
+Parameter `\(\mu\)` is the expected weight a power lifter can pull in a deadlift
+   
+   * `\(H_0\)`: `\(\mu=225\)` kg
+   * `\(H_0\)`: `\(\mu\neq225\)` kg
+   * `\(\alpha=0.05\)`
+   * Test statistic `\(T_0 = \frac{\bar{X}-\mu_0}{s/\sqrt{n}}\)`
+   * `\(T_0 &lt; t_{\alpha/2,n-1}\)` or `\(T_0&gt; t_{1-\alpha/2,n-1}\)`
+.tiny[
+
+```r
+t.test(x = male_deadlift$best3deadlift_kg, 
+       alternative = "two.sided", 
+       mu = 225, conf.level = 0.95)
+```
+
+```
+## 
+## 	One Sample t-test
+## 
+## data:  male_deadlift$best3deadlift_kg
+## t = 12.632, df = 499, p-value &lt; 2.2e-16
+## alternative hypothesis: true mean is not equal to 225
+## 95 percent confidence interval:
+##  248.0030 256.4768
+## sample estimates:
+## mean of x 
+##  252.2399
+```
+]
+
+---
+
+# Comparing distributions - qqplot
+
+So far, we discussed tests related to parameters' values, however, sometimes we want to compare entire distributions. For example, is the deadlift max weight normally distributed?
+
+--
+
+A qqplot draws the sample (on y axis) versus the theoretical distribuion (on x-axis). If the two are on `\(y=x\)` this means that the distributions match. 
+
+--
+
+Would you say that the following are from the same distribution?
+.tiny[
+
+```r
+ggplot(male_deadlift, aes(sample = best3deadlift_kg)) + 
+   geom_qq(distribution = stats::qnorm, dparams = list(mean = 250, sd = 50)) + 
+   theme_bw() + 
+   geom_abline(slope = 1, intercept = 0)
+```
+
+&lt;img src="03-Hypothesis_tests_files/figure-html/deadlift weight qqplot-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Comparing distributions - qqplot - another example
+
+Now with both genders.
+.tiny[
+
+```r
+set.seed(0)
+deadlift &lt;- read_csv("data/ipf_lifts.csv", col_types = cols()) %&gt;% 
+   select(best3deadlift_kg) %&gt;% 
+   filter(best3deadlift_kg &gt; 0) %&gt;% 
+   sample_n(500)
+
+ggplot(deadlift, aes(sample = best3deadlift_kg)) + 
+   geom_qq(distribution = stats::qnorm, dparams = list(mean = 223, sd = 63)) + 
+   theme_bw() + 
+   geom_abline(slope = 1, intercept = 0)
+```
+
+&lt;img src="03-Hypothesis_tests_files/figure-html/qqplot example-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+--
+
+Looks like there's a heavy tail towards higher weights in the sample than the theoretical. How do we quantify this as a statistical hypothesis test of "goodness of fit"?
+
+---
+
+# Hypothesis testing - goodness of fit
+
+Goodness of fit tests are used to test how good is the fit of our empirical distribution to that of a theoretical distribution.
+
+--
+
+Arrange the empirical distribution in `\(k\)` bins, and let `\(O_i\)` be the observed frequency in the `\(i\)`th class bin. Let `\(E_i\)` be the expected probability. The test statistic is:
+
+`$$\chi^2_0=\sum_{i=1}^k\frac{(O_i-E_i)^2}{E_i}$$`
+
+If the population follows the hypothesized distribution, then the expression is approximately distributed `\(\chi^2_{k-p-1}\)`, where `\(p\)` os the number of parameters of the hypothesized distribution estimated by sample statistics.
+
+The approximation improves as `\(n\)` increases.
+
+--
+
+When using the approximation, make sure that `\(E_i\)` is "big enough" (i.e., `\(E_i\geq5, \forall i\)`)
+
+---
+
+# Hypothesis testing - goodness of fit - procedure
+
+We would reject the hypothesis if `\(\chi_0^2&gt;\chi_{\alpha,k-p-1}^2\)`.
+
+   1. We are interested in the form of the distribution of maximum deadlift weight
+   2. `\(H_0\)`: The deadlift weight is normally distributed
+   3. `\(H_1\)`: The deadlift weight is not normally distributed
+   4. `\(\alpha = 0.05\)`
+   5. The test statistic is: `\(\chi^2_0=\sum_{i=1}^k{\frac{(O_i-E_i)^2}{E_i}}\)`
+   6. Reject `\(H_0\)` if `\(\chi_0^2&gt;\chi^2_{0.05,k-p-1}\)`
+
+---
+
+# Goodness of fit - example
+
+.tiny[
+
+```r
+interval_breaks &lt;- c(0, 120, 190, 250, 320, 600)
+sample_size &lt;- 500
+
+deadlift_gfit &lt;- deadlift %&gt;% 
+   mutate(weight_gr = cut(best3deadlift_kg, breaks = interval_breaks))
+
+mu &lt;- mean(deadlift_gfit$best3deadlift_kg)
+sigma &lt;- sd(deadlift_gfit$best3deadlift_kg)
+
+deadlift_chi_prep &lt;- deadlift_gfit %&gt;% 
+   count(weight_gr, name = "observed") %&gt;% 
+   mutate(upper_bound = interval_breaks[-1]) %&gt;% 
+   mutate(lower_bound = interval_breaks[1:5]) %&gt;% 
+   mutate(expected_prob = pnorm(q = upper_bound, mean = mu, sd = sigma)-
+             pnorm(q = lower_bound, mean = mu, sd = sigma)) %&gt;% 
+   mutate(expected_prob =  expected_prob/sum(expected_prob)) %&gt;% 
+   mutate(expected = expected_prob*500) %&gt;% 
+   mutate(chi_comp = (observed-expected)^2/expected)
+
+chi2_0 &lt;- sum(deadlift_chi_prep$chi_comp)
+chi2_0
+```
+
+```
+## [1] 26.35624
+```
+
+```r
+qchisq(p = 1-0.05, df = 5-1)
+```
+
+```
+## [1] 9.487729
+```
+]
+
+Since `\(26.3=\chi^2_0&gt;\chi^2_{500, 3}=9.49\)` we reject the null hypothesis. This distribution is not normal.
+
+What is the p-value? (really small)
+
+--
+
+.tiny[
+
+```r
+1-pchisq(q = chi2_0, df = 5-1)
+```
+
+```
+## [1] 2.681849e-05
+```
+]
+
+---
+
+# Goodness of fit - example - using R's *chisq.test* command
+
+
+```r
+chisq.test(x = deadlift_chi_prep$observed, 
+           p = deadlift_chi_prep$expected_prob)
+```
+
+```
+## 
+## 	Chi-squared test for given probabilities
+## 
+## data:  deadlift_chi_prep$observed
+## X-squared = 26.356, df = 4, p-value = 2.682e-05
+```
+
+---
+
+# Words of caution 
+
+Two common mistakes when analyzing data are:
+
+   1. HARKing (Hypothesizing After Results are Known)
+   2. Using multiple comparisons without compensating for them
+
+In essense, Since we have a `\(\alpha\)` error rate (e.g. 5%), when we perform 100 hypothesis tests we are bound to get 5% false positives.
+
+--
+
+For (1) that's something you shouldn't do! Some organizations offer *preregistration* as means of avoiding HARKing and improving research. I.e., [https://cos.io/prereg/](https://cos.io/prereg/)
+
+--
+
+For (2) there are procedures to control the false discovery rate (FDR). In R, there is a command called `p.adjust` for example. We might talk about this, if time permits.
+
+---
+
+# Abusing hypothesis tests - example (don't try this at home!)
+
+.tiny[
+
+```r
+set.seed(0)
+
+# let's get random numbers
+random_normal &lt;- matrix(rnorm(n=100*100, mean = 0, sd = 1),
+                        nrow = 100, ncol = 100) %&gt;% 
+   as_tibble(.name_repair = "unique")
+```
+
+```
+## New names:
+## * `` -&gt; ...1
+## * `` -&gt; ...2
+## * `` -&gt; ...3
+## * `` -&gt; ...4
+## * `` -&gt; ...5
+## * ... and 95 more problems
+```
+]
+
+---
+
+# Abusing hypothesis tests - example (don't try this at home!)
+
+.tiny[
+
+```r
+# we have 100 variables which are standard normal distributed
+# let's take the one with the highest average
+random_normal %&gt;% 
+   pivot_longer(cols = everything(), names_to = "variable", values_to = "value") %&gt;%
+   group_by(variable) %&gt;% 
+   summarize(mean_val = mean(value)) %&gt;% 
+   arrange(desc(mean_val))
+```
+
+```
+## # A tibble: 100 x 2
+##    variable mean_val
+##    &lt;chr&gt;       &lt;dbl&gt;
+##  1 ...78       0.287
+##  2 ...28       0.244
+##  3 ...35       0.233
+##  4 ...53       0.228
+##  5 ...60       0.224
+##  6 ...100      0.211
+##  7 ...97       0.191
+##  8 ...77       0.173
+##  9 ...99       0.166
+## 10 ...67       0.165
+## # ... with 90 more rows
+```
+
+```r
+# H_0: this variable (..78) has mu=0, H_1: otherwise
+
+t.test(random_normal$...78)
+```
+
+```
+## 
+## 	One Sample t-test
+## 
+## data:  random_normal$...78
+## t = 2.5858, df = 99, p-value = 0.01117
+## alternative hypothesis: true mean is not equal to 0
+## 95 percent confidence interval:
+##  0.06668831 0.50660635
+## sample estimates:
+## mean of x 
+## 0.2866473
+```
+]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
