@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
   <head>
-    <title>Statistical inference for Two Samples</title>
+    <title>Simple Linear Regression and Correlation</title>
     <meta charset="utf-8" />
     <meta name="author" content="Adi Sarid" />
     <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
@@ -13,11 +13,11 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Statistical inference for Two Samples
-## Lecture #5
+# Simple Linear Regression and Correlation
+## Lecture #6
 ### Adi Sarid
 ### Tel-Aviv University
-### updated: 2019-11-23
+### updated: 2019-11-30
 
 ---
 
@@ -82,557 +82,22 @@ th, td {
 
 # Reminder from previous lecture
 
-   * Hypothesis tests (e.g., of proportion in the attractive flu shot experiment)
+We talked about two sample statistics
    
-   * Type-I and Type-II errors `\(\alpha=P(H_1|H_0), \beta=P(H_0|H_1)\)`
-   
-   * General framework for hypothesis testing (the 8 steps)
-   
-      * Parameter -&gt; Null hypothesis -&gt; Altermative -&gt; Significance -&gt; Statistic -&gt; Rejection criteria
-      * Sample, computation -&gt; Decision
-   
-   * P-value and the relationship to confidence intervals
-   
-   * Designing the sample size for a desired power `\(1-\beta\)`
-   
-   * Goodness of fit hypothesis test (comparing to distribution)
-   
-   * Words of caution about HARKing and multiple comparisons
-   
----
-
-# Are men and women different? ♂  ♀
-
-Yes. Of course there are gender differences, but this is a great example to start today's lecture with!
-
---
-
-Here is a research published in PLOS One, about gender differences relating to **empathy and moral cognition**:
-
-   * Baez, Sandra, et al. "Men, women… who cares? A population-based study on sex differences and gender roles in empathy and moral cognition." *PloS one* 12.6 (2017): e0179336.
-      * [https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0179336](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0179336)
-
---
-
-   * The research uses statistical means to compare measures such as the **Interpersonal Reactivity Index** (IRI) to see if women score higher than men, in a **statistically significant manner**.
-      * For example, figure 3. (significant sex differences in self-reported empathy) shows that women **percive** themselves as being more interpersonal than what men perceive. However, these might be driven by stereotypes, and might be apparant only in self-assesment instruments.
-
---
+   * Hypothesis testing of means, e.g.: `\(H_0: \mu_1=\mu_2 \text{ vs } H_1: \mu_1\neq\mu_2\)`
       
-   * We won't go over the entire study, but I highly recommend reading it: based on a very large sample `\(n=10802\)` and refutes some common stereotypes. (Also a misleading presentation e.g. y-axis inconsistencies, which we can learn from).
-  
---
-
-   * One very cool feature of this study is that the authors made the data available for the public [here](https://figshare.com/s/06fa32a3c57b93adc1a7).
+   * Confidence intervals, e.g.: `\(\mu_1-\mu_2\in \bar{x}_1-\bar{x}_2 + [z_{\alpha/2},z_{1-\alpha/2}]\sqrt{\sigma_1^2/n_1+\sigma_2^2/n_2}\)`
    
----
-
-# What is it to us?
-
-In previous lectures we saw confidence intervals and hypothesis tests relating to a **single parameter** (single sample)
-
---
-
-Today we will explore the comparison between **two parameters** (two samples, e.g., male-female, tall-short, before-after).
-
---
-
-In the gender empathy example, let `\(\mu_{\text{f}}, \mu_\text{m}\)` represent female and male empathy scores. We want to test the following hypothesis:
-
-   * `\(H_0: \mu_\text{f}=\mu_\text{m}\)`
-   * `\(H_1: \mu_\text{f}&gt;\mu_\text{m}\)`
+   * Power computations desired sample size with two sample statistics
    
---
+   * Paired versus unpaired tests
    
-Then, set `\(\mu_\text{diff} = \mu_\text{f}-\mu_\text{m}\)` and
-
-   * `\(H_0: \mu_\text{diff}=0\)`
-   * `\(H_1: \mu_\text{diff}&gt;0\)`
-
---
-
-This, more-or-less, brings us back to what we already learned last week.
-
---
-
-Most of today's material is covered in Montgomery, chapter 10.
-
----
-
-# Difference in means - variance known
-
-Assume
-
-   * `\(X_{11},\ldots,X_{1n_1}\)` is a random sample from population 1.
-   * `\(X_{21},\ldots,X_{2n_n}\)` is a random sample from population 2.
-   * The two populations `\(X_1\)` and `\(X_2\)` are independent.
-   * Both populations are normally distributed.
+   * Comparing variance using the `\(F\)` test
    
-Then, what is `\(E[\bar{X}_1-\bar{X}_2]\)`, and `\(\operatorname{Var}[\bar{X}_1-\bar{X}_2]\)`?
-
---
-
-`$$E[\bar{X}_1-\bar{X}_2] = \mu_1-\mu_2$$`
-
-`$$\operatorname{Var}[\bar{X}_1-\bar{X}_2]=\operatorname{Var}(\bar{X}_1)-\operatorname{Var}(\bar{X}_2)=\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}$$` 
-
-Using these, and the fact that the sum of two normally distributed variables is also normal we obtain...
-
----
-
-# Difference in means - variance known (2)
-
-The following quantity is normally distributed `\(\mathcal{N}(0,1)\)`:
-
-`$$Z = \frac{\bar{X}_1 - \bar{X}_2 - (\mu_1-\mu_2)}{\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma^2_2}{n_2}}}$$`
-
---
-
-Null hypothesis: `\(H_0: \mu_1-\mu_2=\Delta_0\)`
-
-Alternative Hypotheses (rejection criterion):
-
-   * `\(H_1: \mu_1-\mu_2\neq\Delta_0\)` `\(\quad(z_0&gt;z_{\alpha/2} \text{ or } z_0&lt;-z_{\alpha/2})\)`
+   * Goodness of fit for examining variable independence, i.e., using `\(\chi^2\)` test
    
-   * `\(H_1: \mu_1-\mu_2&gt;\Delta_0\)` `\(\quad(z_0&gt;z_\alpha)\)`
+   * We saw some examples (men vs. women, mobile phone and health)
    
-   * `\(H_1: \mu_1-\mu_2&gt;\Delta_0\)` `\(\quad(z_0&lt;-z_\alpha)\)`
-
----
-
-# Choice of sample size
-
-Similarly to what we've seen in the last lecture, given `\(\alpha, \beta, \Delta\)`, we can determin the desired sample sizes `\(n_1, n_2\)`, by writing (example for a two sided hypothesis):
-
-`$$\beta = P(H_0|H_1)=P\left(\left. z_{\alpha/2}&lt;\frac{\bar{X}_1-\bar{X}_2-\Delta_0}{\sqrt{\frac{\sigma_1^2}{{n_1}} + \frac{\sigma_2^2}{{n_2}}}}&lt; z_{1-\alpha/2}\right| \mu_1-\mu_2=\Delta_0+\delta\right)$$`
-
---
-
-Define `\(\Delta = \Delta_0 + \delta = \mu_1-\mu_2\)`, if we play a bit with the expression in the parentheses, and using `\(\Phi^{-1}(\cdot)\)`, we can reach the following expression:
-
-`$$n\approx\frac{(z_{\alpha/2}+z_\beta)^2(\sigma_1^2+\sigma_2^2)}{(\Delta-\Delta_0)^2}$$`
-
-where `\(n=n_1=n_2\)` and the total sample size is `\(2n\)`.
-
---
-
-
-For a one sided alternative hypothesis, the equivalent formulat would be
-
-`$$n=\frac{(z_{\alpha}+z_\beta)^2(\sigma_1^2+\sigma_2^2)}{(\Delta-\Delta_0)^2}$$`
-
----
-
-# Confidence intervals on a difference in means
-
-When we discussed confidence intervals two weeks ago, we left out confidence intervals for the difference between two means, but this is actually almost the same (now that you've seen `\(Z\)` for the difference). I.e.:
-
-`$$P\left[z_{\alpha/2}\leq\frac{\bar{X}_1-\bar{X}_2-(\mu_1-\mu_2)}{\sqrt{\sigma_1^2/n_1+\sigma_2^2/n_2}}\leq z_{1-\alpha/2}\right]=1-\alpha$$`
-
-Hence, a confidence interval for `\(\mu_1-\mu_2\)` can be obtained by using:
-
-`$$\bar{x}_1-\bar{x}_2+z_{\alpha/2}\sqrt{\sigma_1^2/n_1+\sigma_2^2/n_2}\leq \mu_1-\mu_2\leq \bar{x}_1-\bar{x}_2+z_{1-\alpha/2}\sqrt{\sigma_1^2/n_1+\sigma_2^2/n_2}$$`
-
---
-
-Or in the one-sided case:
-
-`$$\mu_1-\mu_2 \leq \bar{x}_1-\bar{x}_2+z_{1-\alpha}\sqrt{\sigma_1^2/n_1+\sigma_2^2/n_2}$$` 
-
---
-
-(Or the other side)
-   
-`$$\mu_1-\mu_2 \geq \bar{x}_1-\bar{x}_2+z_{\alpha}\sqrt{\sigma_1^2/n_1+\sigma_2^2/n_2}$$` 
-
----
-
-# Difference in means - variance unknown, equal variances
-
-Let's assume that `\(\sigma\)` is unknown, but that `\(\sigma_1=\sigma_2=\sigma\)`.
-
-We've seen that `\(S_i^2 = \frac{\sum_j(X_{ij}-\bar{X}_i)^2}{n_i-1}\)` is an unbiased estimator for `\(\sigma_i^2\)`.
-
-Introducing the pooled estimator of `\(\sigma^2\)`, denoted by `\(S^2_p\)`:
-
-`$$S_p^2=\frac{(n_1-1)S_1^2+(n_2-1)S_2^2}{n_1+n_2-2}$$`
-
---
-
-This is a weighted average of `\(S_1^2\)` and `\(S_2^2\)`. 
-
---
-
-Each `\(S_i\)` contributes `\(n_1-1\)` degrees of freedom so overall `\(S_p^2\)` has `\(n_1+n_2-2\)` degrees of freedom.
-
-Given normality assumptions (or `\(n_1\)` and `\(n_2\)` large enough), we can use the following statistic as a student's t distribution with `\(n_1+n_2-2\)` degrees of freedom:
-
-`$$T = \frac{\bar{X}_1-\bar{X}_2-(\mu_1-\mu_2)}{S_p\sqrt{1/n_1+1/n_2}}$$`
-
----
-
-# Difference in means - variance unknown, equal variances (2)
-
-Summarizing the test, we can write:
-
-Null hypothesis: `\(H_0: \mu_1-\mu_2=\Delta_0\)`
-
-Test statistic: `\(T_0=\frac{\bar{X}_1-\bar{X}_2-\Delta_0}{S_p\sqrt{1/n_1+1/n_2}}\)`
-
-Alternative hypothesis (rejection criteria):
-
-   * `\(H_1:\mu_1-\mu_2\neq\Delta_0 \quad\quad(t_0&gt;t_{1-\alpha/2,n_1+n_2-2}\text{ or } t_0&lt;t_{\alpha/2,n-1+n_2-2})\)`
-   * `\(H_1:\mu_1-\mu_2&gt;\Delta_0 \quad\quad(t_0&gt;t_{1-\alpha,n_1+n_2-2})\)`
-   * `\(H_1:\mu_1-\mu_2&lt;\Delta_0 \quad\quad(t_0&lt;t_{\alpha,n_1+n_2-2})\)`
-
----
-
-# Difference in means - variance unknown, unequal variances `\((\sigma_1\neq\sigma_2)\)`
-
-In the case that the variances are unequal and unknown, we can use the following statistic which is approximately distributed `\(t\)` with `\(v\)` degrees of freedom:
-
-`$$T^*_0=\frac{\bar{X}_1-\bar{X}_2-\Delta_0}{\sqrt{S_1^2/n_1+S_2^2/n_2}}$$`
-
-Where the degrees of freedom `\(v\)` are equal:
-
-`$$v=\frac{\left(S_1^2/n_1 + S_2^2/n_2\right)^2}{\frac{(S_1^2/n_1)^2}{n_1-1}+\frac{(S_2^2/n_2)^2}{n_2-1}}$$`
-
----
-
-# Paired or unpaired t-test?
-
-Sometimes, data is collected in pairs, for example when an intervention plan is conducted on a group of individuals
-
-   * We want to compare the effect of the intervention before and after. 
-
-   * This *paired* situation may ocurr when we have multiple observations of the same group. 
-   
-   * We would like to match the observations to avoid differences which may ocurr due to variation between subjects. 
-
---
-
-   * We pair the observations and conduct the statistical tests on the difference.
-   
-Let `\((X_{11}, X_{21}),\ldots,(X_{1n}, X_{2n})\)` a set of `\(n\)` paired observations. Define `\(D_j=X_{ij}-X_{2j}\)`
-
---
-
-`$$\mu_D=E(X_1-X_2)=\mu_1-\mu_2$$`
-
---
-
-Null hypothesis: `\(H_0:\mu_D=\Delta_0\)`
-
-Test statistic: `\(T_0=\frac{\bar{D}-\Delta_0}{S_D/\sqrt{n}}\)`
-
-Where `\(S_D\)` is the sample standard deviation of the differences.
-
----
-
-# Example of two sample hypothesis testing - the ipf data set
-
-We go back to the ipf data set (the power lifting competition dataset). 
-
-What test would you use? (means paired / means unpaird / something else) for each of the following:
-.small[
-Test 1:
-   * `\(H_0:\)` men lift higher weights than women
-   * `\(H_1:\)` men and women lift the same weight
-   
-Test 2:
-   * `\(H_0:\)` Deadlift and squat weights are the same
-   * `\(H_1:\)` Deadlift weights are higher than squat weights
-
-Test 3:
-   * `\(H_0:\)` The age of male athletes is normally distributed
-   * `\(H_1:\)` The age of male athletes is not normally distributed
-
-Test 4:
-   * `\(H_0:\)` The athletes age and gender are statistically independent
-   * `\(H_1:\)` The athletes age and gender are not statistically independet
-]
-
-<div class="countdown" id="timer_5dd970f3" style="right:0;bottom:0;" data-warnwhen="0">
-<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
-</div>
-
----
-
-# Demonstrating tests in the ipf data set (test 1)
-
-   * `\(H_0:\)` men lift higher weights than women
-   * `\(H_1:\)` men and women lift the same weight
-
-Unpaired t-test
-.tiny[
-
-```r
-#https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-10-08/ipf_lifts.csv
-set.seed(0)
-ipf &lt;- read_csv("data/ipf_lifts.csv", col_types = cols()) %&gt;% 
-   filter(best3squat_kg &gt; 0) %&gt;% 
-   sample_n(1000)
-   
-t.test(formula = best3squat_kg ~ sex, data = ipf, alternative = "less")
-```
-
-```
-## 
-## 	Welch Two Sample t-test
-## 
-## data:  best3squat_kg by sex
-## t = -32.558, df = 997.23, p-value &lt; 2.2e-16
-## alternative hypothesis: true difference in means is less than 0
-## 95 percent confidence interval:
-##       -Inf -99.81944
-## sample estimates:
-## mean in group F mean in group M 
-##        146.4611        251.5971
-```
-
-```r
-# alternative method to call the function
-#t.test(x = ipf$best3squat_kg[ipf$sex == "F"], y = ipf$best3squat_kg[ipf$sex == "M"], alternative = "less")
-```
-]
-
----
-
-# Demonstrating tests in the ipf data set (test 2)
-
-Test 2:
-   * `\(H_0:\)` Deadlift and squat weights are the same
-   * `\(H_1:\)` Deadlift weights are higher than squat weights
-   
-Paired t-test, because each athelete is compared to himself
-
-.tiny[
-
-```r
-t.test(x = ipf$best3deadlift_kg, y = ipf$best3squat_kg, paired = TRUE, alternative = "greater")
-```
-
-```
-## 
-## 	Paired t-test
-## 
-## data:  ipf$best3deadlift_kg and ipf$best3squat_kg
-## t = 6.1662, df = 976, p-value = 5.113e-10
-## alternative hypothesis: true difference in means is greater than 0
-## 95 percent confidence interval:
-##  4.141787      Inf
-## sample estimates:
-## mean of the differences 
-##                5.650502
-```
-]
-
----
-
-# Demonstrating tests in the ipf data set (test 3 and 4)
-
-Test 3 was:
-
-   * `\(H_0:\)` The age of male athletes is normally distributed
-   * `\(H_1:\)` The age of male athletes is not normally distributed
-   
-This is the goodness of fit test that we were discussing last week.
-
-Test 4 was:
-
-   * `\(H_0:\)` The athletes age and gender are statistically independent
-   * `\(H_1:\)` The athletes age and gender are not statistically independet
-
-The fourth test is actually a goodness of fit test for uniform distribution.
-
----
-
-# Goodness of fit test for independence (contingency table)
-
-When we have two variables and we want to examine independence between them, it is like comparing the contingencies (combinations) of the two variables, against the uniform distribution.
-
-| Age | genderM | genderF | total |
-|--------|---------|---------|--------|
-| group1 | g1m | g1f | `\(n_{g1}\)` |
-| group2 | g2m | g2f | `\(n_{g2}\)` |
-| group3 | g3m | g3f | `\(n_{g3}\)` |
-| total | `\(n_M\)` | `\(n_F\)` | `\(n\)` |
-
---
-
-   * The observed is the count within the cell, and the expected is the product of the marginal probabilities, i.e.:
-   
-      * The expected of Males in group2 under the null hypothesis is:  `\(E_{g2m}=(n_{g2}/n)\times(n_M/n)\times n\)`
-
-   * This is the case when the variables are independent, i.e., `\(P(X=x,Y_y)=P(X=x)P(Y=y)\)`
-
---
-
-This results in a `\(\chi^2\)` test with `\((r-1)(c-1)\)` degrees of freedom.
-
----
-
-# Independence between variable via contingency table (example)
-.small[
-
-```r
-ipf_new &lt;- ipf %&gt;%
-   filter(!is.na(age)) %&gt;% 
-   mutate(age_group = cut(age, breaks = c(0, 25, 35, 45, 55, 100))) %&gt;% 
-   count(age_group, sex) %&gt;% 
-   pivot_wider(id_cols = age_group, names_from = sex, values_from = n) %&gt;% 
-   select(2:3) %&gt;% 
-   as.matrix()
-   
-ipf_compare_res &lt;- chisq.test(ipf_new)
-ipf_compare_res
-```
-
-```
-## 
-## 	Pearson's Chi-squared test
-## 
-## data:  ipf_new
-## X-squared = 21.751, df = 4, p-value = 0.0002246
-```
-]
-
----
-
-# Your turn (class exercise) - do mobile phones impact our health?
-
-In **pairs**, try to devise an experiment plan, that would test whether **mobile phones impact our health**.
-.small[
-In your answer relate to the following points:
-
-   * What do you consider as an "effect"? (i.e., what kind of health measure?)
-
-   * How do you select and/or separate the groups participating in your experiment?
-   
-   * How do you neutralize other factors which might intervene with the experiment? (like selection of participants or other factors)
-   
-   * What would you use as a statistcal measure?
-   
-   * Paired or unpaired?
-   
-   * What sample size?
-   
-   * What would be the hypotheses 8-step procedure of the experiment? reminder:
-      * Parameter -&gt; Null hypothesis -&gt; Altermative -&gt; Significance -&gt; Statistic -&gt; Rejection criteria
-      * Sample, computation -&gt; Decision
-]
-
-<div class="countdown" id="timer_5dd96fd5" style="right:0;bottom:0;" data-warnwhen="0">
-<code class="countdown-time"><span class="countdown-digits minutes">10</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
-</div>
-
----
-
-# Variance of two samples (F-test)
-
-We talked about t-test when the variance is unknown and presented two cases (with equal variance and uneqal variance). How would we decide which of the two to use? 
-
---
-
-We would like to use **a statistical test** to compare the variance. One method to compare two numbers is to divide them, i.e., `\(\sigma_1/\sigma_2\)`.
-
---
-
-The `\(F\)` distribution is the ratio of two independent chi-square random variables, divided by its number of degrees of freedom, i.e.:
-   
-`$$F=\frac{W/u}{Y/v}$$`
-
-The probability density function is given by the expression:
-
-`$$f(x)=\frac{\Gamma\left(\frac{u+v}{2}\right)\left(\frac{u}{v}\right)^{u/2}x^{(u/2)-1}}{\Gamma\left(\frac{u}{2}\right)\Gamma\left(\frac{v}{2}\right)\left[\left(\frac{u}{v}\right)x+1\right]^{(u+v)/2}}$$`
-
----
-
-# Illustration of the `\(F\)` distribution
-.small[
-`$$F=\frac{W/u}{Y/v}, \quad\mu=v/(v-2), \quad (\text{ for }v&gt;2), \quad \sigma^2=\frac{2v^2(u+v-2)}{u(v-2)^2(v-4)}$$`
-]
-.tiny[
-
-```r
-f_dist &lt;- crossing(f = seq(0, 6, by = 0.1), df1 = c(1, 5, 10, 20), df2 = c(1, 5, 10, 20)) %&gt;% 
-   mutate(f_dense = pmap_dbl(.l = list(f, df1, df2), .f = df)) %&gt;% 
-   mutate(v = paste0("v=", df2),
-          u = paste0("u=", df1)) %&gt;% 
-   mutate_at(vars(v,u), fct_inorder)
-
-ggplot(f_dist, aes(x = f, y = f_dense)) + 
-   geom_line() + 
-   facet_grid(rows = vars(u), cols = vars(v)) + 
-   theme_bw() + 
-   guides(color = guide_legend("df"))
-```
-
-&lt;img src="04-Statistical_inference_two_samples_files/figure-html/example F distribution-1.png" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-# Statistical hypothesis test for variance equality
-
-Assuming two independent populations with normal distribution, then `\(F=\frac{S_1^2/\sigma_1^2}{S_2^2/\sigma_2^2}\)` has an `\(F\)` distribution with `\(u=n_1-1, v=n_2-1\)` degrees of freedom.
-
-Null hypothesis: `\(H_0: \sigma_1^2=\sigma_2^2\)`
-
-Test statistic: `\(F_0 = \frac{S_1^2}{S_2^2}\)`
-
-Alternative hypothesis (rejection criteria):
-
-   * `\(H_1:\sigma_1^2\neq\sigma_2^2 \quad(f_0&gt;f_{1-\alpha/2, n_1-1, n_2-1} \text{ or } f_0&lt;f_{\alpha/2,n_1-1, n_2-1})\)`
-   
-   * `\(H_1:\sigma_1^2&gt;\sigma_2^2 \quad(f_0&gt;f_{1-\alpha,n_1-1, n_2-1})\)`
-   
-   * `\(H_1:\sigma_1^2&lt;\sigma_2^2 \quad(f_0&lt;f_{\alpha,n_1-1, n_2-1})\)`
-
----
-
-# Example for F statistic variance test
-
-.small[
-
-```r
-ipf %&gt;% 
-   group_by(sex) %&gt;% 
-   summarize_at(vars(contains("best3")), ~{(sd(., na.rm = T))^2})
-```
-
-```
-## # A tibble: 2 x 4
-##   sex   best3squat_kg best3bench_kg best3deadlift_kg
-##   &lt;chr&gt;         &lt;dbl&gt;         &lt;dbl&gt;            &lt;dbl&gt;
-## 1 F             1400.          723.             854.
-## 2 M             4184.         2542.            2668.
-```
-]
-
-It's pretty clear that males have a much higher variance, lets test this in an F test.
-
-.small[
-
-```r
-var.test(formula = best3squat_kg ~ sex, data = ipf, ratio = 1, alternative = "less")
-```
-
-```
-## 
-## 	F test to compare two variances
-## 
-## data:  best3squat_kg by sex
-## F = 0.3347, num df = 359, denom df = 639, p-value &lt; 2.2e-16
-## alternative hypothesis: true ratio of variances is less than 1
-## 95 percent confidence interval:
-##  0.0000000 0.3910184
-## sample estimates:
-## ratio of variances 
-##          0.3347011
-```
-]
-
 ---
 
 # Inference on two population proportions
@@ -725,7 +190,7 @@ In this context, see the ASA statement on `\(p\)`-Values [here](https://amstat.t
 
 --
 
-**Effect size** measures the magnitude of a phenomena. Effect size is a generic name for various measures such as 
+**Effect size** measures the magnitude of a phenomena. Effect size is a generic name for various measures such as:
 
    * `\(R^2\)` in linear regression
    
@@ -749,6 +214,11 @@ Where `\(S_p\)` is the pooled standard deviation:
 .small[
 
 ```r
+set.seed(0)
+ipf &lt;- read_csv("data/ipf_lifts.csv", col_types = cols()) %&gt;% 
+   filter(best3squat_kg &gt; 0) %&gt;% 
+   sample_n(1000)
+
 effsize::cohen.d(formula = best3squat_kg ~ sex, data = ipf)
 ```
 
@@ -762,6 +232,581 @@ effsize::cohen.d(formula = best3squat_kg ~ sex, data = ipf)
 ## -2.016548 -1.710606
 ```
 ]
+
+---
+
+# Simple Linear Regression: background
+
+Linear regression is an important modeling technique in statistics. It was developed in the 1800s and is still very common today.
+
+--
+
+   * In essense, it allows us to model the relationship between two or more variables, utilizing some basic assumptions such as linearity, and normality.
+
+--
+
+   * These days, it is less common as a predictive modeling approach, because for predictions we have much better models.
+
+--
+
+   * It is still heavily used in research (e.g., academia) to describe and indicate statistically significant relationships.
+
+--
+
+   * Linear regression is very appealing as one of the "first models to try out" because it is very simple to understand, has a low computational price, it is easy to interpret, and yet very flexible.
+
+---
+
+# Simple Linear Regression: example - bird strikes (1/3)
+
+A very troubling problem for aviation is bird strikes
+
+   * From a monetary perspective - causing damages to planes
+   
+   * From a safety perspective - endangers the passanges and crew
+   
+   * (Obviously it's not that fun to the birds either)
+   
+--
+
+What is the relationship between flight height and the number of bird strike events?
+
+--
+
+The data we will be exploring is adopted from tidytuesday (2019-07-23), [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-07-23).
+
+--
+
+.tiny[
+
+```r
+# wildlife_impacts &lt;- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-07-23/wildlife_impacts.csv")
+# write_csv(wildlife_impacts %&gt;% count(height), "lectures/data/wildlife_impacts_small.csv")
+wildlife_small &lt;- read_csv("data/wildlife_impacts_small.csv", col_types = cols()) %&gt;% 
+  mutate(rounded_height = round(height/1000)) %&gt;% 
+   group_by(rounded_height) %&gt;% 
+   summarize(n = sum(n)) %&gt;% 
+   filter(!is.na(rounded_height))
+```
+]
+
+---
+
+# Bird strike events example (2/3)
+
+The was categorized to intervals of 1000 feet, i.e., `\(0-999, 1000-1999,...,25000\)`.
+
+Note that the data y-axis appears in **log-scale**.
+
+.tiny[
+
+```r
+wildlife_hist &lt;- ggplot(wildlife_small, aes(x = rounded_height, y = n)) + 
+   geom_col(fill = "darkorange", color = "black") + scale_y_log10() + theme_bw() + xlab("Height [k feet]")
+wildlife_points &lt;- ggplot(wildlife_small, aes(x = rounded_height, y = n)) + 
+   geom_point() + scale_y_log10() + theme_bw() + 
+   stat_smooth(method = "lm") + xlab("Height [k feet]")
+cowplot::plot_grid(wildlife_hist, wildlife_points)
+```
+
+&lt;img src="05-Simple_linear_regression_and_correlation_files/figure-html/histogram of bird strike height-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Bird strike events example (3/3)
+
+&lt;img src="05-Simple_linear_regression_and_correlation_files/figure-html/bird strike chart smaller-1.png" style="display: block; margin: auto;" /&gt;
+
+It would seem as though each additional `\(5k\)` feet decrease the number of bird strikes by a ratio of `\(10\)`, or in other words:
+
+`$$\log(\text{Bird strikes}) \approx 3784 - 0.168\times h$$`
+
+--
+
+Equivalently, we can also write:
+
+`$$\text{Bird strikes} \approx 10^{3784-0.168\times h}$$`
+
+--
+
+Even thought this is not exactly a linear equation, it was obtained using linear regression, and we will see later on how we reached this formula. 
+
+---
+
+# The Basic Regression Model: description and assumptions
+
+At the base of linear regression, we describe the relationship between an independent variable `\(Y\)` and a dependent variable `\(X\)` as:
+
+`$$E(Y|X=x)=\mu_{Y|x}=\beta_0+\beta_1x$$`
+
+The regression coefficient `\(\beta_0\)` is called the **intercept**, and `\(\beta_1\)` is called the **slope** (why?).
+
+--
+
+This relationship is generalized as:
+
+`$$Y=\beta_0+\beta_1x + \epsilon$$`
+
+Where `\(\epsilon\)` is assumed to be distributed as `\(\mathcal{N}(0, \sigma_\epsilon)\)`.
+
+--
+
+This model is called a **simple linear regression model**
+
+   * Only one independent variable (only a single `\(x\)`, aka regressor)
+
+--
+
+Note that:
+
+`$$E(Y|x)=E(\beta_0 + \beta_1x+\epsilon)=\beta_0+\beta_1x+E\epsilon = \beta_0+\beta_1x$$`
+
+`$$\operatorname{Var}(Y|x)=\operatorname{Var}(\beta_0+\beta_1x)+\operatorname{Var}(\epsilon)=\sigma^2_\epsilon$$`
+
+---
+
+# Properties of the least squares estimators
+
+The most common method to find the linear relationship is called the least squares estimate. I.e., we are looking for the line which brings to minimum the suqared errors. I.e.: 
+
+   * The `\(\min\sum_i(\hat{y}_i-y_i)^2\)` of the red lines in :
+
+&lt;img src="05-Simple_linear_regression_and_correlation_files/figure-html/least squares example-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Finding the coefficients using the least squares method
+
+For each observation `\(i\)`, we have: `\(y_i=\beta_0+\beta_1x_i+\epsilon_i\)`, `\(i=1,2,\ldots,n\)`
+
+--
+
+The sum of squares is given by
+
+`$$L = \sum_{i=1}^n{\epsilon_i^2} = \sum_{i=1}^n{(y_i-\beta_0-\beta_1x_i)^2}$$`
+
+--
+
+To find the estimators for `\(\beta_0,\beta_1\)` require:
+
+`$$\frac{\partial L}{\partial\beta_0}= -2\sum_{i=1}^n\left(y_i-\hat{\beta}_0-\hat{\beta}_1x_i\right)=0$$`
+`$$\frac{\partial L}{\partial\beta_1}= -2\sum_{i=1}^n\left(y_i-\hat{\beta}_0-\hat{\beta}_1x_i\right)x_i=0$$`
+
+---
+
+# Finding the coefficients using the least squares method (2)
+
+Simplifying the equations we obtain:
+
+`$$n\hat{\beta_0}+\hat{\beta}_1\sum_{i=1}^n{x_i}=\sum_{i=1}^n{y_i}$$`
+and
+
+`$$\hat{\beta}_0\sum_{i=1}^n{x_i}+\hat{\beta}_1\sum_{i=1}^n{x_i^2} = \sum_{i=1}^n{y_ix_i}$$`
+
+--
+
+The solution to these equations is given by:
+
+`$$\hat{\beta}_0=\bar{y}-\hat{\beta}_1\bar{x}$$`
+
+`$$\hat{\beta}_1=\frac{\sum_i{x_iy_i} - \frac{\sum_i{y_i}\sum_i{x_i}}{n}}{\sum_i{x_i^2}-\frac{(\sum_i{x_i})^2}{n}}$$`
+
+--
+
+The fitted line is then `\(\hat{y} = \hat{\beta}_0 + \hat{\beta}_1x\)`
+
+---
+
+# Finding the coefficients using the least squares method (3)
+
+Set 
+
+`$$S_{xx}=\sum_{i=1}^n{(x_i-\bar{x})^2} = \sum_{i=1}^nx_i^2-\frac{1}{n}\left(\sum_{i=1}^nx_i\right)^2$$`
+`$$S_{xy}=\sum_{i=1}^n{(y_i-\bar{y})(x_i-\bar{x})} = \sum_{i=1}^nx_iy_i-\frac{1}{n}\left(\sum_{i=1}^nx_i\right)\left(\sum_{i=1}^ny_i\right)$$`
+
+Then:
+
+`$$\hat{\beta}_0=\hat{y}-\hat{\beta}_1\bar{x}$$`
+
+`$$\hat{\beta}_1=\frac{S_{xy}}{S_{xx}}$$`
+
+---
+
+# The residuals
+
+Each observation satisfies `\(y_i=\hat{\beta}_0 + \hat{\beta}_1x_i+e_i, \quad i=1,2,\ldots,n\)`. We call `\(e_i\)` the `\(i\)`th residual.
+
+--
+
+We define `\(SS_E\)`, the error sum of squares, as:
+
+`$$SS_E=\sum_{i=1}^n{e_i^2}=\sum_{i=1}^n{(y_i-\hat{y}_i)^2}$$`
+
+--
+
+To estimate `\(\sigma_\epsilon^2\)` we can use `\(SS_E\)`:
+
+`$$E(SS_E)=(n-2)\sigma_\epsilon^2$$`
+
+An unbiased estimator for `\(\sigma_\epsilon^2\)` is therefore:
+
+`$$\hat{\sigma}^2=\frac{SS_E}{n-2}$$`
+
+---
+
+# Linear Regression - Demonstration via R (1)
+
+We'll now demonstrate how to run linear regression in R, and then continue the discussion about linear regression.
+
+.small[
+
+```r
+mtcars_lm &lt;- lm(formula = mpg ~ disp, data = mtcars)
+summary(mtcars_lm)
+```
+
+```
+## 
+## Call:
+## lm(formula = mpg ~ disp, data = mtcars)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -4.8922 -2.2022 -0.9631  1.6272  7.2305 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 29.599855   1.229720  24.070  &lt; 2e-16 ***
+## disp        -0.041215   0.004712  -8.747 9.38e-10 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 3.251 on 30 degrees of freedom
+## Multiple R-squared:  0.7183,	Adjusted R-squared:  0.709 
+## F-statistic: 76.51 on 1 and 30 DF,  p-value: 9.38e-10
+```
+]
+---
+
+# Linear Regression - Demonstration via R (2)
+
+In this example we also use a transformation within the formula of `lm`, i.e. `log(n)`
+
+.small[
+
+```r
+wildlife_lm &lt;- lm(formula = log(n) ~ rounded_height, data = wildlife_small)
+summary(wildlife_lm)
+```
+
+```
+## 
+## Call:
+## lm(formula = log(n) ~ rounded_height, data = wildlife_small)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.4258 -0.2640 -0.0495  0.2009  1.6772 
+## 
+## Coefficients:
+##                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     8.71284    0.25826   33.74   &lt;2e-16 ***
+## rounded_height -0.38788    0.01772  -21.89   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.6775 on 24 degrees of freedom
+## Multiple R-squared:  0.9523,	Adjusted R-squared:  0.9503 
+## F-statistic: 479.3 on 1 and 24 DF,  p-value: &lt; 2.2e-16
+```
+]
+---
+
+# Properties of the Least Squares Estimators
+
+The estimators `\(\hat{\beta}_0\)` and `\(\hat{\beta}_1\)` are a result of a computation based on our sample, i.e., `\(\bar{y},\bar{x}, S_{xx}, S_{xy}\)`. 
+
+--
+
+Specifically, they depend on the observed `\(y\)`'s and hence they are random variables themselves. Both coefficients are unbiased, i.e., `\(E[\hat{\beta}_0]=\beta_0\)` and `\(E[\hat{\beta}_1]=\beta_1\)`. 
+
+--
+
+The variance of the coefficients is given by:
+
+`$$\operatorname{Var}(\hat{\beta}_1)= \frac{\sigma_\epsilon^2}{S_{xx}}$$`
+
+`$$\operatorname{Var}({\hat{\beta_0}}) = \sigma_\epsilon^2\left[\frac{1}{n} + \frac{\bar{x}^2}{S_{xx}}\right]$$`
+
+The covariance of `\(\beta_0\)` and `\(\beta_1\)` is given by:
+
+`$$\operatorname{Cov}(\hat{\beta}_0,\hat{\beta}_1) = E(\hat{\beta}_0-E\hat{\beta_0})(\hat{\beta}_1-E\hat{\beta_1})=-\sigma_\epsilon^2\frac{\bar{x}}{S_{xx}}$$`
+
+---
+
+# Hypothesis tests in simple linear regression
+
+Now that we found a relationship `\(y=\hat{\beta}_0 + \hat{\beta}_1x\)`, we want to figure out, is this relationship "real"?
+
+--
+
+In other words, we would like to test the hypothesis:
+
+   * `\(H_0:\beta_0=0\)`
+   * `\(H_1:\beta_0\neq0\)`
+   
+And the hypothesis:
+
+   * `\(H_0:\beta_1=0\)`
+   * `\(H_1:\beta_1\neq0\)`
+
+If both are rejected (especially `\(\beta_1\)`), we can say that the relationship we found is statistically significant.
+
+--
+
+To develop the statistical test for the coefficients we will need the following assumptions:
+
+   * The errors are normally distributed, i.e. `\(\epsilon_i\sim\mathcal{N}(0,\sigma_\epsilon)\)`, and
+   
+   * The errors are homoscedastic, i.e., no matter the `\(x_i\)`, the error distribution is the same
+
+---
+
+# Hypothesis tests in simple linear regression (2)
+
+Recall that
+
+`$$\hat{\beta}_1=\frac{\sum_i{x_iy_i} - \frac{\sum_i{y_i}\sum_i{x_i}}{n}}{\sum_i{x_i^2}-\frac{(\sum_i{x_i})^2}{n}}$$`
+
+Since `\(Y_i\sim\mathcal{N}(\beta_0+\beta_1x_i, \sigma_\epsilon^2)\)`, this means that `\(\hat{\beta}_1\)` is also normally distributed (as a linear combination of normal variables).
+
+`$$\hat{\beta}_1\sim\mathcal{N}(\beta_1, \sigma_\epsilon^2/S_{xx})$$`
+
+The following statistic is distributed student's t, with `\(n-2\)` degrees of freedom
+
+`$$T_0=\frac{\hat{\beta}_1 - 0}{\sqrt{\hat{\sigma}_\epsilon^2/S_{xx}}}$$`
+
+That is, reject `\(H_0\)` if: 
+`$$t_0&gt;t_{1-\alpha/2, n-2} \quad\text{ or }\quad t_0 &lt; t_{\alpha/2,n-2}$$`
+
+---
+
+# Hypothesis tests in simple linear regression (3)
+.small[
+A similar test can be used for `\(\beta_0\)`: `\(T_0=\frac{\hat{\beta}_0 - 0}{\sqrt{\hat{\sigma}_\epsilon^2\left[\frac{1}{n}+\frac{\bar{x}^2}{S_{xx}}\right]}}\)`
+]
+
+--
+
+.small[
+Now, we can have another look on the linear regression output.
+
+```r
+summary(wildlife_lm)
+```
+
+```
+## 
+## Call:
+## lm(formula = log(n) ~ rounded_height, data = wildlife_small)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1.4258 -0.2640 -0.0495  0.2009  1.6772 
+## 
+## Coefficients:
+##                Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     8.71284    0.25826   33.74   &lt;2e-16 ***
+## rounded_height -0.38788    0.01772  -21.89   &lt;2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.6775 on 24 degrees of freedom
+## Multiple R-squared:  0.9523,	Adjusted R-squared:  0.9503 
+## F-statistic: 479.3 on 1 and 24 DF,  p-value: &lt; 2.2e-16
+```
+]
+
+---
+
+# Analysis of Variance for Regression Significance
+
+So far we treated the coefficients individually, however, we want a different hypothesis test which will examine the regression as a whole. 
+
+--
+
+The variance of the `\(y_i\)` observations can be broken in the following manner:
+
+`$$\sum_{i=1}^n{(y_i-\bar{y})^2} = \sum_{i=1}^n{(\hat{y}_i-\bar{y})^2} + \sum_{i=1}^n{(y_i-\hat{y})^2}$$`
+
+--
+
+The variability of the data (the LHS) is broken down to the variability explained using the regression line, and the remaining variability (the errors `\(e_i^2\)`).
+
+--
+
+This is sometimes noted as
+
+`$$SS_T=SS_R + SS_E$$`
+
+Where `\(SS_R\)` has 1 degree of freedome, `\(SS_E\)` has `\(n-2\)` degrees of freedom, and `\(SS_T\)` has `\(n-1\)` degrees of freedom.
+
+--
+
+The expectancy of each element is `\(E[SS_E/(n-2)]=\sigma_\epsilon^2\)`, `\(E[SS_R]=\sigma^2_\epsilon+\beta_1^2S_{xx}\)`.
+
+--
+
+Under a null hypothesis of `\(H_0: \beta_1=0\)` we obtain that both sum of squares are `\(\chi^2\)` distributed.
+
+---
+
+# Analysis of Variance for Regression Significance (2)
+
+Then, the following statistic would be F-distributed, under the null hypothesis:
+
+`$$F_0=\frac{SS_R/1}{SS_E/(n-2)} = \frac{MS_R}{MS_E}$$`
+--
+
+The intuition behind the statistic is: 
+
+   * As the mean square error `\(MS_E\)` decreases; and
+--
+
+   * The variance explained by the regression model `\(MS_R\)` increases
+--
+
+   * The model is a good fit to the data 
+--
+
+   * Hence, the null hypothesis of no model, i.e., `\(\beta_1=0\)`, is rejected
+
+--
+
+## ANOVA (Analysis of Variance) Table
+
+.small[
+| Source of Variation | Sum of Squares | df | Mean Squares | `\(F_0\)` |
+|----------------------|-----------------|-------|:------------:|---------------------|
+| Regression | `\(SS_R\)` | `\(1\)` | `\(MS_R\)` | `\(\frac{MS_R}{MS_E}\)` |
+| Error | `\(SS_E\)` | `\(n-2\)` | `\(MS_E\)` |  |
+| Total | `\(SS_T\)` | `\(n-1\)` |  |  |
+]
+
+`summary(wildlife_lm)`
+
+---
+
+# Confidence intervals
+
+As with any parameter, we can compute confidence intervals for `\(\beta_0\)` and `\(\beta_1\)`:
+
+`$$\beta_1\in\hat{\beta}_1\pm t_{\alpha/2,n-1}\sqrt{\frac{\sigma_\epsilon^2}{S_{xx}}}$$`
+
+`$$\beta_0\in\hat{\beta}_0\pm t_{\alpha/2, n-2}\sqrt{\frac{1}{n} + \frac{\bar{x}^2}{S_{xx}}}$$`
+
+---
+
+# Prediction intervals
+
+We would like to use the linear regression model for prediction of new values.
+
+--
+
+Given `\(x_0\)`, our prediction for `\(Y_0\)` is
+
+`$$\hat Y_0 = \hat\beta_0 + \hat\beta_1x_0$$`
+
+--
+
+This is a point estimate, however, we are also interested in a **prediction interval**, i.e., where would a new observation lie in probability of 95%.
+
+--
+
+Observe that the error of the new observation is: `\(e_p=Y_0-\hat Y_0\)`.
+
+--
+
+The mean of the error is 0 and the variance of the error is:
+
+`$$\operatorname{Var}(e_p)=\operatorname{Var}(Y_0-\hat Y_0)=\sigma_\epsilon^2\left[1 + \frac{1}{n} + \frac{(x_0-\bar{x})^2}{S_{xx}}\right]$$`
+
+Hence:
+
+`$$Y_0\in \hat{y}_0\pm t_{\alpha/2,n-2}\sqrt{\hat\sigma_\epsilon^2\left[1 + \frac{1}{n} + \frac{(x_0-\bar{x})^2}{S_{xx}}\right]}$$`
+
+---
+
+# Prediction intervals - illustration
+
+The grey band shows confidence intervals around `\(Y_0|X=x\)` and the outer lines show the prediction intervals
+.small[
+
+```r
+wildlife_predicted &lt;- predict(wildlife_lm,
+                              newdata = 
+                                 tibble(rounded_height = seq(0, 25, by = 0.25)),
+                               interval = "prediction") %&gt;% 
+   data.frame() %&gt;% 
+   mutate(rounded_height = seq(0, 25, by = 0.25))
+```
+```
+ggplot(wildlife_small, aes(x = rounded_height, y = n)) + 
+   geom_point() + theme_bw() + 
+   xlab("Height [k feet]") + 
+   geom_line(data = wildlife_predicted, 
+             inherit.aes = T, aes(x = rounded_height, y = exp(lwr))) +
+   geom_line(data = wildlife_predicted, 
+             inherit.aes = T, aes(x = rounded_height, y = exp(upr))) +
+   scale_y_log10() +
+   stat_smooth(method = "lm")
+```
+]
+.right-plot[
+&lt;img src="05-Simple_linear_regression_and_correlation_files/figure-html/the actual plot-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Would linear regression fit here?
+.small[
+We mentioned these assumptions to linear regression: 
+
+   * Linear relationship
+   * Normal error `\(\mathcal{N}(0, \sigma_\epsilon^2)\)`
+   * Homoscedastity
+]
+
+--
+
+.small[
+Which of the following violates these assumptions? Can you think of a transformation that would fix the problem?
+]
+
+<div class="countdown" id="timer_5de2d41d" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>&lt;img src="05-Simple_linear_regression_and_correlation_files/figure-html/linear regression fits-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Coefficient of determination `\(R^2\)`
+
+We would like to measure the effect size of the regression. One possibility to measure the effect size is to use `\(R^2\)`:
+
+`$$R^2=\frac{SS_R}{SS_T}=1-\frac{SS_E}{SS_T}$$`
+
+Since `\(SS_T=SS_R + SS_E\)`, and all sizes are non negative:
+
+`$$0\leq R^2 \leq1$$`
+
+As the fit is better, `\(R^2\)` increases.
+
+--
+
+Next week we will also dive a bit deeper into transformations and how to utilize them, and talk about correlation between variables.
+
+We will talk about multiple linear regression, and discuss some cavets of `\(R^2\)`, of overfitting, and how to overcome them.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
