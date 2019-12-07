@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
   <head>
-    <title>Simple Linear Regression and Correlation</title>
+    <title>Multiple Linear Regression and Correlation</title>
     <meta charset="utf-8" />
     <meta name="author" content="Adi Sarid" />
     <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
@@ -13,11 +13,11 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Simple Linear Regression and Correlation
-## Lecture #6
+# Multiple Linear Regression and Correlation
+## Lecture #7
 ### Adi Sarid
 ### Tel-Aviv University
-### updated: 2019-11-30
+### updated: 2019-12-08
 
 ---
 
@@ -82,454 +82,45 @@ th, td {
 
 # Reminder from previous lecture
 
-We talked about two sample statistics
-   
-   * Hypothesis testing of means, e.g.: `\(H_0: \mu_1=\mu_2 \text{ vs } H_1: \mu_1\neq\mu_2\)`
-      
-   * Confidence intervals, e.g.: `\(\mu_1-\mu_2\in \bar{x}_1-\bar{x}_2 + [z_{\alpha/2},z_{1-\alpha/2}]\sqrt{\sigma_1^2/n_1+\sigma_2^2/n_2}\)`
-   
-   * Power computations desired sample size with two sample statistics
-   
-   * Paired versus unpaired tests
-   
-   * Comparing variance using the `\(F\)` test
-   
-   * Goodness of fit for examining variable independence, i.e., using `\(\chi^2\)` test
-   
-   * We saw some examples (men vs. women, mobile phone and health)
-   
----
+We focused on simple linear regression.
 
-# Inference on two population proportions
-
-We consider the case of two binomial parameters `\(p_1, p_2\)`. Let `\(X_1, X_2\)` represent the number of successes in each sample. `\(\hat{P}_i=X_i/n_i\)`, have approximately normal distributions.
-
-`$$Z=\frac{\hat{P}_1-\hat{P}_2-(p_1-p_2)}{\sqrt{\frac{p_1(1-p_1)}{n_1} + \frac{p_2(1-p_2)}{n_2}}}$$`
-Is distributed approximately as `\(Z\sim\mathcal{N}(0,1)\)`.
-
+   * We saw how simple linear regression can be used to find the relationship between two variables
+   
+   * For example, flight height and the number of bird strikes (or `log` or bird strikes)
+   
 --
-
-Under the null hypothesis `\(H_0: p_1=p_2=p\)` we have:
-
-`$$Z = \frac{\hat{P}_1-\hat{P}_2}{\sqrt{p(1-p)(1/n_1 + 1/n_2)}}$$`
-
---
-
-Where an estimator to `\(p\)` is given by:
-
-`$$\hat{P}=\frac{X_1+X_2}{n_1+n_2}$$`
-
----
-
-# The test procedure for comparing two population proportions
-
-Null hypothesis: `\(H_0: p_1=p_2\)`
-
-Test statistic: `\(Z_0=\frac{\hat{P}_1-\hat{P}_2}{\sqrt{\hat{P}(1-\hat{P})(1/n_1 + 1/n_2)}}\)`
-
-Alternative hypothesis (rejection criteria):
-
-   * `\(H_1:p_1\neq p_2 \quad(z_0&gt;z_{1-\alpha/2} \text{ or } z_0&lt;z_{\alpha/2})\)`
    
-   * `\(H_1:p_1&gt;p_2 \quad (z_0&gt;z_{1-\alpha})\)`
+We discussed the base assumptions in linear regression:
+
+   * Linearity `\(Y=\beta_0+\beta_1x + \epsilon\)`
    
-   * `\(H_1:p_1&lt;p_2 \quad (z_0&lt;z_{\alpha})\)`
+   * `\(\epsilon \sim \mathcal{N}(0,\sigma_\epsilon)\)`
    
----
-
-# Setting the sample sizes when comparing two population proportions
-
-Very similar to what we've shown in the last lecture for one sample, but with a slightly different computation for the standard deviation under `\(H_1\)`. For example, in the two sided case we have:
-
-`$$\beta=\Phi\left[\frac{z_{1-\alpha/2}\sqrt{\bar{p}\bar{q}(1/n_1+1/n_2)}-(p_1-p_2)}{\sigma_{\hat{P}_1-\hat{P}_2}}\right]-\Phi\left[\frac{z_{\alpha/2}\sqrt{\bar{p}\bar{q}(1/n_1+1/n_2)}-(p_1-p_2)}{\sigma_{\hat{P}_1-\hat{P}_2}}\right]$$`
-
---
-
-With `\(\bar{p}=\frac{n_1p_1+n_2p_2}{n_1+n_2}, \bar{q}=\frac{n_1(1-p_1)+n_2(1-p_2)}{n_1+n_2}\)` and
-
-`$$\sigma_{\hat{P}_1-\hat{P}_2}=\sqrt{\frac{p_1(1-p_1)}{n_1} + \frac{p_2(1-p_2)}{n_2}}$$`
-
---
-
-We can obtain the suggested sample (or power) using `pwr::pwr.2p.test` or `pwr::pwr2p2n.test`.
-
-.small[
-
-```r
-pwr::pwr.2p2n.test(h = pwr::ES.h(p1 = 0.2, p2 = 0.3),
-                   n1 = 150, n2 = NULL,
-                   sig.level = 0.05,
-                   power = 0.8,
-                   alternative = "less")
-```
-
-```
-## 
-##      difference of proportion power calculation for binomial distribution (arcsine transformation) 
-## 
-##               h = -0.2319843
-##              n1 = 150
-##              n2 = 490.6928
-##       sig.level = 0.05
-##           power = 0.8
-##     alternative = less
-## 
-## NOTE: different sample sizes
-```
-]
-
----
-
-# Effect Size
-
-We discussed p-value as the extent to which a statistical finding is significant. However, it is not the sole measure for the strength of a statistical finding.
-
---
-
-In this context, see the ASA statement on `\(p\)`-Values [here](https://amstat.tandfonline.com/doi/full/10.1080/00031305.2016.1154108)
-
---
-
-**Effect size** measures the magnitude of a phenomena. Effect size is a generic name for various measures such as:
-
-   * `\(R^2\)` in linear regression
-   
-   * `\(\rho\)` Pearson correlation coefficient between two variables
-   
-   * Cohen's `\(d\)` which relates to the difference between means (which we will now discuss)
-   
-   * Many more
-
----
-
-# Effect Size - Cohen's `\(d\)`
-
-The difference between two means divided by standard deviation, i.e.:
-
-`$$d=\frac{\bar{X}_1-\bar{X}_2}{S_p}$$`
-
-Where `\(S_p\)` is the pooled standard deviation:
-
-`$$S_p=\sqrt{\frac{(n_1-1)S_1^2+(n_2-1)S_2^2}{n_1+n_2-2}}$$`
-.small[
-
-```r
-set.seed(0)
-ipf &lt;- read_csv("data/ipf_lifts.csv", col_types = cols()) %&gt;% 
-   filter(best3squat_kg &gt; 0) %&gt;% 
-   sample_n(1000)
-
-effsize::cohen.d(formula = best3squat_kg ~ sex, data = ipf)
-```
-
-```
-## 
-## Cohen's d
-## 
-## d estimate: -1.863577 (large)
-## 95 percent confidence interval:
-##     lower     upper 
-## -2.016548 -1.710606
-```
-]
-
----
-
-# Simple Linear Regression: background
-
-Linear regression is an important modeling technique in statistics. It was developed in the 1800s and is still very common today.
-
---
-
-   * In essense, it allows us to model the relationship between two or more variables, utilizing some basic assumptions such as linearity, and normality.
-
---
-
-   * These days, it is less common as a predictive modeling approach, because for predictions we have much better models.
-
---
-
-   * It is still heavily used in research (e.g., academia) to describe and indicate statistically significant relationships.
-
---
-
-   * Linear regression is very appealing as one of the "first models to try out" because it is very simple to understand, has a low computational price, it is easy to interpret, and yet very flexible.
-
----
-
-# Simple Linear Regression: example - bird strikes (1/3)
-
-A very troubling problem for aviation is bird strikes
-
-   * From a monetary perspective - causing damages to planes
-   
-   * From a safety perspective - endangers the passanges and crew
-   
-   * (Obviously it's not that fun to the birds either)
+   * For hypothesis testing on `\(\beta\)` we also require homoscedastity
    
 --
 
-What is the relationship between flight height and the number of bird strike events?
+We discussed the objective function: the least squares `\(L\)`
 
 --
 
-The data we will be exploring is adopted from tidytuesday (2019-07-23), [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-07-23).
-
---
-
-.tiny[
-
-```r
-# wildlife_impacts &lt;- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-07-23/wildlife_impacts.csv")
-# write_csv(wildlife_impacts %&gt;% count(height), "lectures/data/wildlife_impacts_small.csv")
-wildlife_small &lt;- read_csv("data/wildlife_impacts_small.csv", col_types = cols()) %&gt;% 
-  mutate(rounded_height = round(height/1000)) %&gt;% 
-   group_by(rounded_height) %&gt;% 
-   summarize(n = sum(n)) %&gt;% 
-   filter(!is.na(rounded_height))
-```
-]
-
+We have shown how to find `\(\beta_0\)` and `\(\beta_1\)` from the partial derivative of `\(\partial L/\partial \beta_i\)`
+   
 ---
 
-# Bird strike events example (2/3)
+# Reminder from previous lecture (2)
 
-The was categorized to intervals of 1000 feet, i.e., `\(0-999, 1000-1999,...,25000\)`.
+`$$\hat{\beta}_0=\bar{y}-\hat{\beta}_1\bar{x}, \quad \hat{\beta}_1=\frac{S_{xy}}{S_{xx}}$$`
 
-Note that the data y-axis appears in **log-scale**.
+Where:
 
-.tiny[
-
-```r
-wildlife_hist &lt;- ggplot(wildlife_small, aes(x = rounded_height, y = n)) + 
-   geom_col(fill = "darkorange", color = "black") + scale_y_log10() + theme_bw() + xlab("Height [k feet]")
-wildlife_points &lt;- ggplot(wildlife_small, aes(x = rounded_height, y = n)) + 
-   geom_point() + scale_y_log10() + theme_bw() + 
-   stat_smooth(method = "lm") + xlab("Height [k feet]")
-cowplot::plot_grid(wildlife_hist, wildlife_points)
-```
-
-&lt;img src="05-Simple_linear_regression_and_correlation_files/figure-html/histogram of bird strike height-1.png" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-# Bird strike events example (3/3)
-
-&lt;img src="05-Simple_linear_regression_and_correlation_files/figure-html/bird strike chart smaller-1.png" style="display: block; margin: auto;" /&gt;
-
-It would seem as though each additional `\(5k\)` feet decrease the number of bird strikes by a ratio of `\(10\)`, or in other words:
-
-`$$\log(\text{Bird strikes}) \approx 3784 - 0.168\times h$$`
+`$$S_{xx}=\sum_{i=1}^n{(x_i-\bar{x})^2}, \quad S_{xy}=\sum_{i=1}^n{(y_i-\bar{y})(x_i-\bar{x})}$$`
 
 --
 
-Equivalently, we can also write:
+We discussed the importance of `\(SS_E = \sum_{i=1}^n(y_i-\hat{y})^2\)`, and talked about its role in estimating `\(\sigma_\epsilon\)`:
 
-`$$\text{Bird strikes} \approx 10^{3784-0.168\times h}$$`
-
---
-
-Even thought this is not exactly a linear equation, it was obtained using linear regression, and we will see later on how we reached this formula. 
-
----
-
-# The Basic Regression Model: description and assumptions
-
-At the base of linear regression, we describe the relationship between an independent variable `\(Y\)` and a dependent variable `\(X\)` as:
-
-`$$E(Y|X=x)=\mu_{Y|x}=\beta_0+\beta_1x$$`
-
-The regression coefficient `\(\beta_0\)` is called the **intercept**, and `\(\beta_1\)` is called the **slope** (why?).
-
---
-
-This relationship is generalized as:
-
-`$$Y=\beta_0+\beta_1x + \epsilon$$`
-
-Where `\(\epsilon\)` is assumed to be distributed as `\(\mathcal{N}(0, \sigma_\epsilon)\)`.
-
---
-
-This model is called a **simple linear regression model**
-
-   * Only one independent variable (only a single `\(x\)`, aka regressor)
-
---
-
-Note that:
-
-`$$E(Y|x)=E(\beta_0 + \beta_1x+\epsilon)=\beta_0+\beta_1x+E\epsilon = \beta_0+\beta_1x$$`
-
-`$$\operatorname{Var}(Y|x)=\operatorname{Var}(\beta_0+\beta_1x)+\operatorname{Var}(\epsilon)=\sigma^2_\epsilon$$`
-
----
-
-# Properties of the least squares estimators
-
-The most common method to find the linear relationship is called the least squares estimate. I.e., we are looking for the line which brings to minimum the suqared errors. I.e.: 
-
-   * The `\(\min\sum_i(\hat{y}_i-y_i)^2\)` of the red lines in :
-
-&lt;img src="05-Simple_linear_regression_and_correlation_files/figure-html/least squares example-1.png" style="display: block; margin: auto;" /&gt;
-
----
-
-# Finding the coefficients using the least squares method
-
-For each observation `\(i\)`, we have: `\(y_i=\beta_0+\beta_1x_i+\epsilon_i\)`, `\(i=1,2,\ldots,n\)`
-
---
-
-The sum of squares is given by
-
-`$$L = \sum_{i=1}^n{\epsilon_i^2} = \sum_{i=1}^n{(y_i-\beta_0-\beta_1x_i)^2}$$`
-
---
-
-To find the estimators for `\(\beta_0,\beta_1\)` require:
-
-`$$\frac{\partial L}{\partial\beta_0}= -2\sum_{i=1}^n\left(y_i-\hat{\beta}_0-\hat{\beta}_1x_i\right)=0$$`
-`$$\frac{\partial L}{\partial\beta_1}= -2\sum_{i=1}^n\left(y_i-\hat{\beta}_0-\hat{\beta}_1x_i\right)x_i=0$$`
-
----
-
-# Finding the coefficients using the least squares method (2)
-
-Simplifying the equations we obtain:
-
-`$$n\hat{\beta_0}+\hat{\beta}_1\sum_{i=1}^n{x_i}=\sum_{i=1}^n{y_i}$$`
-and
-
-`$$\hat{\beta}_0\sum_{i=1}^n{x_i}+\hat{\beta}_1\sum_{i=1}^n{x_i^2} = \sum_{i=1}^n{y_ix_i}$$`
-
---
-
-The solution to these equations is given by:
-
-`$$\hat{\beta}_0=\bar{y}-\hat{\beta}_1\bar{x}$$`
-
-`$$\hat{\beta}_1=\frac{\sum_i{x_iy_i} - \frac{\sum_i{y_i}\sum_i{x_i}}{n}}{\sum_i{x_i^2}-\frac{(\sum_i{x_i})^2}{n}}$$`
-
---
-
-The fitted line is then `\(\hat{y} = \hat{\beta}_0 + \hat{\beta}_1x\)`
-
----
-
-# Finding the coefficients using the least squares method (3)
-
-Set 
-
-`$$S_{xx}=\sum_{i=1}^n{(x_i-\bar{x})^2} = \sum_{i=1}^nx_i^2-\frac{1}{n}\left(\sum_{i=1}^nx_i\right)^2$$`
-`$$S_{xy}=\sum_{i=1}^n{(y_i-\bar{y})(x_i-\bar{x})} = \sum_{i=1}^nx_iy_i-\frac{1}{n}\left(\sum_{i=1}^nx_i\right)\left(\sum_{i=1}^ny_i\right)$$`
-
-Then:
-
-`$$\hat{\beta}_0=\hat{y}-\hat{\beta}_1\bar{x}$$`
-
-`$$\hat{\beta}_1=\frac{S_{xy}}{S_{xx}}$$`
-
----
-
-# The residuals
-
-Each observation satisfies `\(y_i=\hat{\beta}_0 + \hat{\beta}_1x_i+e_i, \quad i=1,2,\ldots,n\)`. We call `\(e_i\)` the `\(i\)`th residual.
-
---
-
-We define `\(SS_E\)`, the error sum of squares, as:
-
-`$$SS_E=\sum_{i=1}^n{e_i^2}=\sum_{i=1}^n{(y_i-\hat{y}_i)^2}$$`
-
---
-
-To estimate `\(\sigma_\epsilon^2\)` we can use `\(SS_E\)`:
-
-`$$E(SS_E)=(n-2)\sigma_\epsilon^2$$`
-
-An unbiased estimator for `\(\sigma_\epsilon^2\)` is therefore:
-
-`$$\hat{\sigma}^2=\frac{SS_E}{n-2}$$`
-
----
-
-# Linear Regression - Demonstration via R (1)
-
-We'll now demonstrate how to run linear regression in R, and then continue the discussion about linear regression.
-
-.small[
-
-```r
-mtcars_lm &lt;- lm(formula = mpg ~ disp, data = mtcars)
-summary(mtcars_lm)
-```
-
-```
-## 
-## Call:
-## lm(formula = mpg ~ disp, data = mtcars)
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -4.8922 -2.2022 -0.9631  1.6272  7.2305 
-## 
-## Coefficients:
-##              Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept) 29.599855   1.229720  24.070  &lt; 2e-16 ***
-## disp        -0.041215   0.004712  -8.747 9.38e-10 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 3.251 on 30 degrees of freedom
-## Multiple R-squared:  0.7183,	Adjusted R-squared:  0.709 
-## F-statistic: 76.51 on 1 and 30 DF,  p-value: 9.38e-10
-```
-]
----
-
-# Linear Regression - Demonstration via R (2)
-
-In this example we also use a transformation within the formula of `lm`, i.e. `log(n)`
-
-.small[
-
-```r
-wildlife_lm &lt;- lm(formula = log(n) ~ rounded_height, data = wildlife_small)
-summary(wildlife_lm)
-```
-
-```
-## 
-## Call:
-## lm(formula = log(n) ~ rounded_height, data = wildlife_small)
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -1.4258 -0.2640 -0.0495  0.2009  1.6772 
-## 
-## Coefficients:
-##                Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)     8.71284    0.25826   33.74   &lt;2e-16 ***
-## rounded_height -0.38788    0.01772  -21.89   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 0.6775 on 24 degrees of freedom
-## Multiple R-squared:  0.9523,	Adjusted R-squared:  0.9503 
-## F-statistic: 479.3 on 1 and 24 DF,  p-value: &lt; 2.2e-16
-```
-]
----
-
-# Properties of the Least Squares Estimators
-
-The estimators `\(\hat{\beta}_0\)` and `\(\hat{\beta}_1\)` are a result of a computation based on our sample, i.e., `\(\bar{y},\bar{x}, S_{xx}, S_{xy}\)`. 
-
---
-
-Specifically, they depend on the observed `\(y\)`'s and hence they are random variables themselves. Both coefficients are unbiased, i.e., `\(E[\hat{\beta}_0]=\beta_0\)` and `\(E[\hat{\beta}_1]=\beta_1\)`. 
+`$$\hat{\sigma}_\epsilon^2=\frac{SS_E}{(n-2)}$$`
 
 --
 
@@ -539,114 +130,21 @@ The variance of the coefficients is given by:
 
 `$$\operatorname{Var}({\hat{\beta_0}}) = \sigma_\epsilon^2\left[\frac{1}{n} + \frac{\bar{x}^2}{S_{xx}}\right]$$`
 
-The covariance of `\(\beta_0\)` and `\(\beta_1\)` is given by:
-
-`$$\operatorname{Cov}(\hat{\beta}_0,\hat{\beta}_1) = E(\hat{\beta}_0-E\hat{\beta_0})(\hat{\beta}_1-E\hat{\beta_1})=-\sigma_\epsilon^2\frac{\bar{x}}{S_{xx}}$$`
-
 ---
 
-# Hypothesis tests in simple linear regression
+# Reminder from previous lecture (3)
 
-Now that we found a relationship `\(y=\hat{\beta}_0 + \hat{\beta}_1x\)`, we want to figure out, is this relationship "real"?
-
---
-
-In other words, we would like to test the hypothesis:
-
-   * `\(H_0:\beta_0=0\)`
-   * `\(H_1:\beta_0\neq0\)`
-   
-And the hypothesis:
-
-   * `\(H_0:\beta_1=0\)`
-   * `\(H_1:\beta_1\neq0\)`
-
-If both are rejected (especially `\(\beta_1\)`), we can say that the relationship we found is statistically significant.
-
---
-
-To develop the statistical test for the coefficients we will need the following assumptions:
-
-   * The errors are normally distributed, i.e. `\(\epsilon_i\sim\mathcal{N}(0,\sigma_\epsilon)\)`, and
-   
-   * The errors are homoscedastic, i.e., no matter the `\(x_i\)`, the error distribution is the same
-
----
-
-# Hypothesis tests in simple linear regression (2)
-
-Recall that
-
-`$$\hat{\beta}_1=\frac{\sum_i{x_iy_i} - \frac{\sum_i{y_i}\sum_i{x_i}}{n}}{\sum_i{x_i^2}-\frac{(\sum_i{x_i})^2}{n}}$$`
-
-Since `\(Y_i\sim\mathcal{N}(\beta_0+\beta_1x_i, \sigma_\epsilon^2)\)`, this means that `\(\hat{\beta}_1\)` is also normally distributed (as a linear combination of normal variables).
-
-`$$\hat{\beta}_1\sim\mathcal{N}(\beta_1, \sigma_\epsilon^2/S_{xx})$$`
-
-The following statistic is distributed student's t, with `\(n-2\)` degrees of freedom
+The variance of `\(\beta_0, \beta_1\)` helped us devise a statistic and a hypothesis test for the parameters, i.e.:
 
 `$$T_0=\frac{\hat{\beta}_1 - 0}{\sqrt{\hat{\sigma}_\epsilon^2/S_{xx}}}$$`
 
-That is, reject `\(H_0\)` if: 
-`$$t_0&gt;t_{1-\alpha/2, n-2} \quad\text{ or }\quad t_0 &lt; t_{\alpha/2,n-2}$$`
-
----
-
-# Hypothesis tests in simple linear regression (3)
-.small[
-A similar test can be used for `\(\beta_0\)`: `\(T_0=\frac{\hat{\beta}_0 - 0}{\sqrt{\hat{\sigma}_\epsilon^2\left[\frac{1}{n}+\frac{\bar{x}^2}{S_{xx}}\right]}}\)`
-]
-
 --
 
-.small[
-Now, we can have another look on the linear regression output.
-
-```r
-summary(wildlife_lm)
-```
-
-```
-## 
-## Call:
-## lm(formula = log(n) ~ rounded_height, data = wildlife_small)
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -1.4258 -0.2640 -0.0495  0.2009  1.6772 
-## 
-## Coefficients:
-##                Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)     8.71284    0.25826   33.74   &lt;2e-16 ***
-## rounded_height -0.38788    0.01772  -21.89   &lt;2e-16 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 0.6775 on 24 degrees of freedom
-## Multiple R-squared:  0.9523,	Adjusted R-squared:  0.9503 
-## F-statistic: 479.3 on 1 and 24 DF,  p-value: &lt; 2.2e-16
-```
-]
-
----
-
-# Analysis of Variance for Regression Significance
-
-So far we treated the coefficients individually, however, we want a different hypothesis test which will examine the regression as a whole. 
-
---
-
-The variance of the `\(y_i\)` observations can be broken in the following manner:
+We've also seen the decomposition of the overall variance to the regression variance and error variance, i.e.:
 
 `$$\sum_{i=1}^n{(y_i-\bar{y})^2} = \sum_{i=1}^n{(\hat{y}_i-\bar{y})^2} + \sum_{i=1}^n{(y_i-\hat{y})^2}$$`
 
 --
-
-The variability of the data (the LHS) is broken down to the variability explained using the regression line, and the remaining variability (the errors `\(e_i^2\)`).
-
---
-
-This is sometimes noted as
 
 `$$SS_T=SS_R + SS_E$$`
 
@@ -654,15 +152,15 @@ Where `\(SS_R\)` has 1 degree of freedome, `\(SS_E\)` has `\(n-2\)` degrees of f
 
 --
 
-The expectancy of each element is `\(E[SS_E/(n-2)]=\sigma_\epsilon^2\)`, `\(E[SS_R]=\sigma^2_\epsilon+\beta_1^2S_{xx}\)`.
+Under a null hypothesis of `\(H_0: \beta_1=0\)`, both `\(SS_R, SS_E\)`  are `\(\chi^2\)` distributed, with `\(1, n-2\)` degrees of freedom respectively.
 
 --
 
-Under a null hypothesis of `\(H_0: \beta_1=0\)` we obtain that both sum of squares are `\(\chi^2\)` distributed.
+This led us to an additional test, using analysis of variance.
 
 ---
 
-# Analysis of Variance for Regression Significance (2)
+# Analysis of Variance for Regression Significance
 
 Then, the following statistic would be F-distributed, under the null hypothesis:
 
@@ -694,100 +192,6 @@ The intuition behind the statistic is:
 | Total | `\(SS_T\)` | `\(n-1\)` |  |  |
 ]
 
-`summary(wildlife_lm)`
-
----
-
-# Confidence intervals
-
-As with any parameter, we can compute confidence intervals for `\(\beta_0\)` and `\(\beta_1\)`:
-
-`$$\beta_1\in\hat{\beta}_1\pm t_{\alpha/2,n-1}\sqrt{\frac{\sigma_\epsilon^2}{S_{xx}}}$$`
-
-`$$\beta_0\in\hat{\beta}_0\pm t_{\alpha/2, n-2}\sqrt{\frac{1}{n} + \frac{\bar{x}^2}{S_{xx}}}$$`
-
----
-
-# Prediction intervals
-
-We would like to use the linear regression model for prediction of new values.
-
---
-
-Given `\(x_0\)`, our prediction for `\(Y_0\)` is
-
-`$$\hat Y_0 = \hat\beta_0 + \hat\beta_1x_0$$`
-
---
-
-This is a point estimate, however, we are also interested in a **prediction interval**, i.e., where would a new observation lie in probability of 95%.
-
---
-
-Observe that the error of the new observation is: `\(e_p=Y_0-\hat Y_0\)`.
-
---
-
-The mean of the error is 0 and the variance of the error is:
-
-`$$\operatorname{Var}(e_p)=\operatorname{Var}(Y_0-\hat Y_0)=\sigma_\epsilon^2\left[1 + \frac{1}{n} + \frac{(x_0-\bar{x})^2}{S_{xx}}\right]$$`
-
-Hence:
-
-`$$Y_0\in \hat{y}_0\pm t_{\alpha/2,n-2}\sqrt{\hat\sigma_\epsilon^2\left[1 + \frac{1}{n} + \frac{(x_0-\bar{x})^2}{S_{xx}}\right]}$$`
-
----
-
-# Prediction intervals - illustration
-
-The grey band shows confidence intervals around `\(Y_0|X=x\)` and the outer lines show the prediction intervals
-.small[
-
-```r
-wildlife_predicted &lt;- predict(wildlife_lm,
-                              newdata = 
-                                 tibble(rounded_height = seq(0, 25, by = 0.25)),
-                               interval = "prediction") %&gt;% 
-   data.frame() %&gt;% 
-   mutate(rounded_height = seq(0, 25, by = 0.25))
-```
-```
-ggplot(wildlife_small, aes(x = rounded_height, y = n)) + 
-   geom_point() + theme_bw() + 
-   xlab("Height [k feet]") + 
-   geom_line(data = wildlife_predicted, 
-             inherit.aes = T, aes(x = rounded_height, y = exp(lwr))) +
-   geom_line(data = wildlife_predicted, 
-             inherit.aes = T, aes(x = rounded_height, y = exp(upr))) +
-   scale_y_log10() +
-   stat_smooth(method = "lm")
-```
-]
-.right-plot[
-&lt;img src="05-Simple_linear_regression_and_correlation_files/figure-html/the actual plot-1.png" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-# Would linear regression fit here?
-.small[
-We mentioned these assumptions to linear regression: 
-
-   * Linear relationship
-   * Normal error `\(\mathcal{N}(0, \sigma_\epsilon^2)\)`
-   * Homoscedastity
-]
-
---
-
-.small[
-Which of the following violates these assumptions? Can you think of a transformation that would fix the problem?
-]
-
-<div class="countdown" id="timer_5de2d41d" style="right:0;bottom:0;" data-warnwhen="0">
-<code class="countdown-time"><span class="countdown-digits minutes">05</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
-</div>&lt;img src="05-Simple_linear_regression_and_correlation_files/figure-html/linear regression fits-1.png" style="display: block; margin: auto;" /&gt;
-
 ---
 
 # Coefficient of determination `\(R^2\)`
@@ -802,11 +206,669 @@ Since `\(SS_T=SS_R + SS_E\)`, and all sizes are non negative:
 
 As the fit is better, `\(R^2\)` increases.
 
+---
+
+# Correlation
+
+In probability, the correlation coefficient between two variables `\(X\)` and `\(Y\)` is defined as:
+
+`$$\rho=\frac{\sigma_{XY}}{\sigma_X\sigma_Y}$$`
+
+Where `\(\sigma_{XY}^2=\operatorname{Cov}(X,Y)=E[(X-\mu_x)(Y-\mu_Y)]=E[XY]-E[X]E[Y]\)`
+
+The correlation `\(\rho\in[-1, 1]\)`. When `\(\rho=1 \text{ or } -1\)`, this means that the two variables have a linear relationship between them, and if it is 0 then the covariance is 0 and the two variables are independent.
+
+We would like to see the relationship between `\(\rho\)` and `\(R^2\)`.
+
 --
 
-Next week we will also dive a bit deeper into transformations and how to utilize them, and talk about correlation between variables.
+We can estimate `\(\rho\)` using:
 
-We will talk about multiple linear regression, and discuss some cavets of `\(R^2\)`, of overfitting, and how to overcome them.
+`$$\hat{\rho} = \frac{S_{xy}}{\sqrt{S_{xx}S_{yy}}}$$`
+
+
+---
+
+# Correlation (2)
+
+We have defined `\(SS_T = \sum(y_i-\bar{y})^2=S_{yy}\)`
+
+--
+
+Remember that:
+
+   * `\(\hat{\beta}_0 = \bar{y}-\hat{\beta}_1\bar{x}\)`
+   
+   * `\(\hat{\beta}_1 = \frac{S_{xy}}{S_{xx}} = \hat{\rho}\sqrt{\frac{S_{yy}}{S_{xx}}}\)`, which demonstrates the relationship between `\(\hat{\rho}\)` and `\(\beta_1\)`. 
+
+--
+
+Also note that: 
+
+`$$SS_E=\sum(y_i-\hat{y}_i)^2=S_{yy}-\beta_1S_{xy}$$`
+
+To see this use the above formulas for `\(\beta_0\)` and `\(\beta_1\)`:
+
+`$$SS_E=\sum(y_i-\hat{y}_i)^2=\sum(y_i-\hat\beta_0-\hat\beta_1x_i)^2=\sum\left((y_i-\bar y)-\beta_1(x_i-\bar x)\right)^2=\\ S_{yy}-2\beta_1S_{xy}+\beta_1^2S_{xx} = S_{yy}-\beta_1S_{xy}$$`
+
+`$$1-R^2 = 1-SS_R/SS_T = SS_E/S_{yy} = SS_E/SS_T = 1-\beta_1S_{xy}/S_{yy} = 1-\frac{S_{xy}^2}{S_{xx}S_{yy}} = 1-\hat\rho^2$$`
+
+---
+
+# Correlation (3)
+.small[
+Hence, we have proven that coefficient of determination `\(R^2\)` is in fact the estimate for the square of the correlation coefficient `\(\hat\rho^2\)` of `\(X\)` and `\(Y\)`. 
+]
+
+--
+
+.small[
+In general, correlation is interesting because it can help us find simple association rules between variables. Let's see an example with movies genres. Adopted from a [scraped imdb](https://github.com/sundeepblue/movie_rating_prediction) source.
+]
+
+--
+
+.tiny[
+
+```r
+library(tidyverse)
+# "https://raw.githubusercontent.com/sarid-ins/statistical_learning_course/master/datasets/scraped_imdb/movie_db_clean.csv")
+movies &lt;- suppressWarnings(read_csv("data/movie_db_clean.csv", col_types = cols()) %&gt;% 
+  janitor::clean_names() %&gt;% select(adventure:western) %&gt;%  mutate_all(~.*1))
+genres_corr &lt;- cor(movies)
+#ggcorrplot::ggcorrplot(genres_corr, type = "upper", hc.order = T, hc.method = "complete")
+```
+]
+.right-plot[
+&lt;img src="06-Multiple_linear_regression_and_correlation_files/figure-html/do the genres plot-1.png" style="display: block; margin: auto;" /&gt;
+]
+---
+
+# Multiple Linear Regression - Background 
+
+.small[So far we treated regression with only two variable (one dependent, `\(Y\)` and one independent `\(X\)`).]
+
+--
+
+.small[
+In most cases, we will have more than one independent variable, i.e., `\(X_1,\ldots,X_p\)`. Our model becomes:
+
+`$$Y=\beta_0 + \beta_1X_1 + \beta_2X_2 + \ldots + \beta_pX_p + \epsilon$$`
+]
+
+--
+
+.small[
+This can also be extended to accomodate for more complex relationships such as:
+
+`$$Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_{12}X_{1}X_2 + \epsilon$$`
+]
+
+--
+
+.small[
+or
+
+`$$Y = \sin(X_1) + \cos(X_1X_2) + \epsilon$$`
+]
+
+--
+
+.small[
+The principles and assumptions we discussed still hold, but some careful handling is needed, and this is what we will discuss today.
+]
+
+.tiny[
+
+```r
+ex1 &lt;- crossing(x1 = seq(0, 5, 0.05),
+         x2 = seq(0, 5, 0.05)) %&gt;% 
+  mutate(y = sin(x1) + cos(x2*x1) + rnorm(NROW(x1), sd = 0.05))
+p1 &lt;- ggplot(ex1, aes(x = x1, y = x2, z = y)) + 
+  geom_contour() + 
+  theme_bw()
+p2 &lt;- ggplot(ex1, aes(x = x1, y = x2, fill = y)) + 
+  geom_tile() + 
+  theme_bw()
+#cowplot::plot_grid(p1, p2)
+```
+]
+
+.right-plot[
+&lt;img src="06-Multiple_linear_regression_and_correlation_files/figure-html/some complex relationship the plot-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Motivation
+
+Let's analyze the example from last lecture (planes and birds), only this time, enrich the problem.
+
+--
+
+.tiny[
+
+```r
+wildlife_medium &lt;- read_csv("data/wildlife_impacts_medium.csv", col_types = cols())
+lm(formula = log10(n) ~ ., data = wildlife_medium) %&gt;% 
+  summary()
+```
+
+```
+## 
+## Call:
+## lm(formula = log10(n) ~ ., data = wildlife_medium)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.77372 -0.39233 -0.02053  0.36176  2.02827 
+## 
+## Coefficients:
+##                  Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)     2.4689987  0.1360094  18.153  &lt; 2e-16 ***
+## skyOvercast    -0.3204574  0.0601218  -5.330 1.33e-07 ***
+## skySome Cloud  -0.1103055  0.0516954  -2.134   0.0332 *  
+## rounded_height -0.0909040  0.0068071 -13.354  &lt; 2e-16 ***
+## rounded_speed   0.0002722  0.0004548   0.599   0.5496    
+## num_engs       -0.5461361  0.0431463 -12.658  &lt; 2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 0.5961 on 698 degrees of freedom
+## Multiple R-squared:  0.3501,	Adjusted R-squared:  0.3454 
+## F-statistic:  75.2 on 5 and 698 DF,  p-value: &lt; 2.2e-16
+```
+]
+
+--
+
+Can you say what's the problem of examining this dataset, in this context? (think about possible biases)
+
+---
+
+# Least Squares Estimation of the Parameters
+
+We will use matrix notation.  For each observation `\(i\)` we have:
+
+`$$y_i = \beta_0 + \beta_1x_{i1} + \ldots + \beta_kx_{ik} + \epsilon_i, \quad i = 1,\ldots,n$$`
+
+This can be represented as:
+
+`$$y = X\beta+\epsilon$$`
+
+Where:
+
+`$$y = \left[\begin{array}{c}y_1\\\vdots\\y_n\end{array}\right], \quad X=\left[\begin{array}{cccc}1 &amp; x_{11} &amp; \ldots &amp; x_{1k}\\\vdots &amp; \vdots &amp; \ddots &amp; \vdots\\1 &amp; x_{n1} &amp; \ldots &amp; x_{nk}\end{array}\right], \quad \beta = \left[\begin{array}{c}\beta_0\\\vdots\\\beta_k\end{array}\right],\quad \epsilon=\left[\begin{array}{c}\epsilon_1\\\vdots\\\epsilon_n\end{array}\right]$$`
+
+--
+
+We are looking for `\(\beta\)` which minimizes `\(L = \epsilon^t\epsilon=(y-X\beta)(y-X\beta)\)`
+
+`$$\frac{\partial L}{\partial\beta}=0$$`
+
+---
+
+# Least Squares Estimation of the Parameters (2)
+
+The resulting equations are given by:
+
+`$$X^tX\hat\beta=X^ty$$`
+
+--
+
+In case that `\(X^tX\)` is a non-singular matrix (i.e., invertible), the solution is unique and equals
+
+`$$\hat\beta = (X^tX)^{-1}X^ty$$`
+
+--
+
+Once `\(\hat{\beta}\)` is found, we can use it to predict our values:
+
+`$$\hat{y} = X\hat{\beta}$$`
+
+--
+
+We can also compute the residuals:
+
+`$$e = y-\hat{y}$$`
+
+--
+
+Let `\(p=k+1\)` (the number of parameters including the constant `\(\beta_0\)`), then:
+
+`$$\hat\sigma^2=\frac{\sum{e_i^2}}{n-p}=\frac{SS_E}{n-p}$$`
+
+Is an unbiased estimate of `\(\sigma_\epsilon^2\)`
+
+---
+
+# Hypothesis Tests
+
+The vector `\(\hat\beta\)` is an unbiased estimate:
+
+`$$E\hat\beta = E[(X^tX)^{-1}X^ty]=E[(X^tX)^{-1}X^t(X\beta+\epsilon)]=E[I\beta + (X^tX)^{-1}X^t\epsilon] = \beta$$`
+
+--
+
+The `\(\beta\)` coefficients' variance is given by diagonal elements of `\((X^tX)^{-1}\)` times `\(\sigma^2\)`.
+
+--
+
+Now that we have found the expected value and the variance, we are ready for some hypothesis tests.
+
+--
+
+We are going to use the following set of hypothesis:
+
+   * `\(H_0:\beta_1=\beta_2=\ldots=\beta_k=0\)`
+   
+   * `\(H_1: \exists i \text{ such that } \beta_i\neq0\)`
+
+--
+
+Under the null hypothesis, `\(SS_R/\sigma^2\)` is `\(\chi^2_{\text{df}=k}\)`, and `\(SS_E/\sigma^2\)` is `\(\chi^2_{\text{df}=n-k-1}\)`.
+
+--
+
+Our statistic is:
+
+`$$F_0=\frac{SS_R/k}{SS_E/(n-k-1)}=\frac{MS_R}{MS_E}$$`
+
+We reject `\(H_0\)` if the computed value of the statistic `\(f_0&gt;f_{1-\alpha,k,n-k}\)` (the right tail of `\(F\)` distribution)
+
+---
+
+# Hypothesis Tests - ANOVA table
+
+The process is summarized in an analysis of variance table, as follows:
+
+.small[
+| Source of Variation | Sum of Squares | df | Mean Squares | `\(F_0\)` |
+|----------------------|-----------------|:-----:|:------------:|---------------------|
+| Regression | `\(SS_R\)` | `\(k\)` | `\(MS_R\)` | `\(\frac{MS_R}{MS_E}\)` |
+| Error | `\(SS_E\)` | `\(n-k-1\)` | `\(MS_E\)` |  |
+| Total | `\(SS_T\)` | `\(n-1\)` |  |  |
+]
+
+--
+
+## Adjusted `\(R^2\)`
+
+We discussed `\(R^2 = 1-\frac{SS_E}{SS_T}\)` however, as the number of parameters increases, the error always decreases, and the `\(R^2\)` increases. This is prone to over-fitting (demonstration coming up).
+
+--
+
+To mitigate this phenomena we adjust the `\(R^2\)`.
+
+`$$R^2_{\text{adj}} = 1 - \frac{SS_E/(n-p)}{SS_T/(n-1)}$$`
+
+--
+
+As the number of parameters increases the numerator increases, which makes the overall `\(R^2_\text{adj}\)` decrease.
+
+---
+
+# Some Formulas for `\(SS_E, SS_R, SS_T\)`
+
+Some formulas that we will use later on today. However, in practice the computer will calculate all the sizes we need.
+
+`$$SS_E = \sum(y_i-\hat y_i)^2=e^te$$`
+
+Substitute `\(e = y-\hat y = y- X\hat\beta\)` we obtain:
+
+`$$SS_E = e^te = (y-X\hat\beta)^t(y-X\beta)=y^ty-2\hat\beta^t X^ty+\hat\beta^t(X^tX)\hat\beta=y^ty-2\hat\beta^t X^ty + \beta^t(X^tX)(X^tX)^{-1}X^ty=y^ty-\hat\beta^t X^ty$$`
+
+--
+
+Since `\(SS_T = \sum(y_i-\bar{y})^2 = \sum y_i^2 - (\sum y_i)^2/n = y^ty - (\sum y_i)^2/n\)` we get:
+
+`$$y^ty - (\sum y_i)^2/n = SS_T = SS_R + SS_E = SS_R + y^ty-\hat\beta^t X^ty$$`
+
+--
+
+Hence,
+
+`$$SS_R = \hat\beta^tX^ty-\left(\sum_{i=1}^n y_i\right)^2/n$$`
+
+--
+
+Remember these for later!
+
+---
+
+# Overfitting a Regression Model: `\(R^2\)` and adjusted `\(R^2\)`
+
+Overfitting is a phenomena which occurrs when the number of parameters, `\(p\)` is very large compared to `\(n\)`
+
+   * In such a case a model is able to fit very well on the data
+   
+   * On new observations, the model will suffer large errors
+   
+--
+
+Various methods exist to handle and avoid this phenomena, such as train/test splits.
+
+--
+
+How would you devise an experiment to demonstrate overfitting?
+
+<div class="countdown" id="timer_5dec27d8" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+--
+
+See demonstration [here](https://github.com/adisarid/intro_statistics_R/blob/master/lectures/06-Note_about_overfitting.Rmd).
+
+---
+
+# Hypothesis Tests on Individual Coefficients
+
+Sometimes, we are interested in the significance of a specific variable. I.e.,
+
+   * `\(H_0: \beta_j=0\)`
+   
+   * `\(H_1: \beta_j\neq0\)`
+
+First, remember that we noted that the `\(j\)`-th element on the diagonal of `\(\sigma^2(X^tX)^{-1}\)` contains the variance of of the `\(\hat\beta_j\)` (for an intuitive explanation see [here](https://stats.stackexchange.com/questions/267948/intuitive-explanation-of-the-xtx-1-term-in-the-variance-of-least-square)).
+
+Set `\(C=(X^tX)^{-1}\)` then under the null hypothesis, we have the following student's-t statistic:
+
+`$$T_0=\frac{\hat\beta_j}{\sqrt{\hat\sigma^2C_{jj}}}=\frac{\hat\beta_j}{\operatorname{se}(\hat\beta_j)}$$`
+
+--
+
+The null hypothesis is rejected when `\(|t_0|&gt;t_{1-\alpha/2, n-p}\)`
+
+---
+
+# Hypothesis Testing - Subset of Coefficients
+
+We now want to generalize the previous approach, which treated the null hypothsis of one variable into an arbitrary **subset** of variables.
+
+Let `\(\vec{\beta}_1\)` be a coefficient vector of `\((r\times1)\)` and `\(\vec{\beta}_2\)` a coefficient vector of `\([(p-r)\times1]\)`, i.e.:
+
+`$$\beta = \left[\begin{array}{c}\vec\beta_1\\\vec\beta_2\end{array}\right]$$`
+
+--
+
+We want to test the hypothesis:
+
+   * `\(H_0: \vec\beta_1=\vec0\)`
+   
+   * `\(H_1: \vec\beta_1\neq\vec0\)`
+
+--
+
+This yields two models: 
+
+The reduced null model: `\(y = X_2\vec\beta_2 + \epsilon\quad\)`   (the `\(\vec\beta_1\)` variables are all `\(0\)`).
+
+The alternative full model `\(y = X\beta + \epsilon\)`.
+
+---
+
+# Hypothesis Testing - Subset of Coefficients (2)
+
+Compute `\(SS_R(\cdot)\)` for each of the models (the full model, the reduced model), also compute the contribution of the addition of `\(\vec\beta_1\)`:
+
+`$$SS_R(\beta) = \hat\beta^tX^ty, \quad \text{ with } p=k+1 \text{ degrees of freedom}$$`
+
+--
+
+`$$SS_R(\vec\beta_2)=\vec\beta_2^tX^t_2y, \quad \text{ with } p-r \text{ degrees of freedom}$$`
+
+--
+
+The regression sum of squares due to `\(\vec\beta_1\)` given that `\(\vec\beta_2\)` is already in the model, is:
+
+`$$SS_R(\vec\beta_1|\vec\beta_2) = SS_R(\beta) - SS_R(\vec\beta_2), \quad \text{ with } r \text{ degrees of freedom}$$`
+
+--
+
+Our test statistic uses the partial `\(F\)` test (with `\(df=r, n-p\)`), i.e.,
+
+`$$F_0 = \frac{SS_R(\vec\beta_1|\vec\beta_2)/r}{MS_E}$$`
+
+--
+
+Reject the null hypothesis if `\(f_0 &gt; f_{1-\alpha, r,n-p}\)` (the right tail of the `\(F\)`-distribution).
+
+--
+
+Later we will discuss the stepwise algorithm, which aims to find good `\(\left\{\beta_i\right\}_i\)` subsets, for improving the model.
+
+---
+
+# Hypothesis Testing - Subset of Coefficients - Example
+
+Demonstration for a subset hypothesis test:
+
+.small[
+
+```r
+full_model &lt;- lm(formula = log10(n) ~ ., data = wildlife_medium)
+partial_model &lt;- lm(formula = log10(n) ~ rounded_height + num_engs, data = wildlife_medium) # omitted sky, rounded_speed
+SS_T &lt;- sum((log10(wildlife_medium$n) - mean(log10(wildlife_medium$n)))^2)
+
+aov_full &lt;- anova(full_model)
+aov_part &lt;- anova(partial_model)
+
+SS_R_full &lt;- sum(aov_full$`Sum Sq`[1:4])
+SS_E_full &lt;- SS_T - SS_R_full
+SS_R_part &lt;- sum(aov_part$`Sum Sq`[1:2])
+SS_R_add &lt;- SS_R_full - SS_R_part
+
+F_0 &lt;- (SS_R_add/3)/(SS_E_full/(698))
+
+df(F_0, df1 = 3, df2=698)
+```
+
+```
+## [1] 4.509414e-06
+```
+
+```r
+qf(0.95, df1 = 3, df2 = 698)
+```
+
+```
+## [1] 2.617663
+```
+]
+
+--
+
+We reject the null hypothesis with a p-value=$4.509414\times 10^{-6}$.
+
+---
+
+# Confidence Intervals
+
+For a coefficient's confidence interval, we can use the statistic:
+
+`$$T=\frac{\hat\beta_j-\beta_j}{\sqrt{\hat\sigma^2C_{jj}}}$$`
+
+--
+
+Therefore, the two sided confidence interval is:
+
+`$$\hat\beta_j + t_{\alpha/2,n-p}\sqrt{\hat\sigma^2C_{jj}}\leq\beta_j\leq\hat\beta_j + t_{1-\alpha/2,n-p}\sqrt{\hat\sigma^2C_{jj}}$$`
+
+--
+
+.tiny[
+
+```r
+deg_f &lt;- NROW(wildlife_medium) - 6
+t_val &lt;- qt(p = 0.975, df = deg_f)
+full_model_sum &lt;- summary(full_model)
+ci &lt;- tibble(coef = full_model$coefficients) %&gt;% 
+   mutate(lb = coef - t_val*full_model_sum$coefficients[,2],
+          ub = coef + t_val*full_model_sum$coefficients[,2] )
+ci
+```
+
+```
+## # A tibble: 6 x 3
+##        coef        lb       ub
+##       &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
+## 1  2.47      2.20      2.74   
+## 2 -0.320    -0.438    -0.202  
+## 3 -0.110    -0.212    -0.00881
+## 4 -0.0909   -0.104    -0.0775 
+## 5  0.000272 -0.000621  0.00117
+## 6 -0.546    -0.631    -0.461
+```
+]
+
+---
+
+# Mean Response Confidence Interval
+
+The point estimate for a new response at a point `\(x_0=[1, x_{01}, \dots, x_{0k}]^t\)` is:
+
+`$$\hat\mu_{Y|x_0} = x_0^t\hat\beta$$`
+
+--
+
+The estimator is unbiased and its variance is:
+
+`$$\operatorname{Var}(\hat\mu_{Y|x_0}) = \sigma^2x_0^t(X^tX)^{-1}x_0$$`
+
+--
+
+Hence, we can use the following statistic for building our confidence interval:
+
+`$$\frac{\hat\mu_{Y|x_0} - \mu_{Y|x_0}}{\sqrt{\hat\sigma^2x_0^t(X^tX)^{-1}x_0}}$$`
+
+--
+
+`$$\hat\mu_{Y|x_0} + t_{\alpha/2, n-p}\sqrt{\hat\sigma^2x_0^t(X^tX)^{-1}x_0} \leq \mu_{Y|x_0} \leq \hat\mu_{Y|x_0} + t_{1-\alpha/2, n-p}\sqrt{\hat\sigma^2x_0^t(X^tX)^{-1}x_0}$$`
+
+---
+
+# Prediction Intervals for New Observations
+
+In case of a prediction interval for a new observation, the point estimate remains the same:
+
+`\(\hat y_0 = x_0^t\hat\beta\)`
+
+And the prediction interval is given by:
+
+`$$\hat y_0 + t_{\alpha/2, n-p}\sqrt{\hat\sigma^2(1+x_0^t(X^tX)^{-1}x_0)} \leq Y_0 \leq \hat y_0 + t_{1-\alpha/2, n-p}\sqrt{\hat\sigma^2(1+x_0^t(X^tX)^{-1}x_0)}$$`
+
+---
+
+# Example: prediction and mean response confidence intervals
+.tiny[
+
+```r
+wildlife_new &lt;- crossing(sky = c("No Cloud", "Some Cloud", "Overcast"),
+                         rounded_height = 0:25,
+                         num_engs = 2,
+                         rounded_speed = 200)
+new_responses_ci &lt;- predict(full_model, newdata = wildlife_new, interval = "confidence") %&gt;% as_tibble() %&gt;% 
+   rename_at(vars(2:3), ~{paste0(., "_ci")})
+new_responses_pi &lt;- predict(full_model, newdata = wildlife_new, interval = "prediction") %&gt;% as_tibble() %&gt;% 
+   select(-fit) %&gt;% 
+   rename_all(~{paste0(., "_pi")})
+wildlife_tib &lt;- wildlife_new %&gt;% 
+   bind_cols(new_responses_ci,
+             new_responses_pi) %&gt;% 
+   mutate_at(vars(fit:upr_pi), ~10^(.)) %&gt;% 
+   pivot_longer(cols = fit:upr_pi, names_to = "type", values_to = "value")
+ggplot(wildlife_tib, aes(x = rounded_height, y = value, color = type, linetype = type)) + 
+   geom_line(size = 1) +
+   facet_wrap(~sky) + 
+   scale_color_manual(values = c("blue", "red", "brown", "red", "brown")) +
+   scale_linetype_manual(values = c(1, 2, 5, 2, 5)) +
+   theme_bw()
+```
+
+&lt;img src="06-Multiple_linear_regression_and_correlation_files/figure-html/prediction and confidence intervals-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Note About Extrapolation - Thought Experiment
+
+What do you think is the problem with trying to provide an extrapolation (fit) and intervals (confidence for mean and prediction for a new observation) for the number of bird strikes with the following parameters:
+
+   * Flight height = 22 thousand feet
+   
+   * Flight speed = 42 kts
+   
+   * Sky = "No Cloud"
+   
+   * Number of engines = `\(2\)`
+
+Can you think of a similar example but from a different domain?
+   
+<div class="countdown" id="timer_5dec2854" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+
+---
+
+# Example - Outliers' Influence
+
+Another "danger" in linear regression is what happens when the data contains outliers. Linear regression is very sensitive in this sense.
+
+
+```r
+# wildlife_impacts &lt;- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-07-23/wildlife_impacts.csv")
+# write_csv(wildlife_impacts %&gt;% count(height), "lectures/data/wildlife_impacts_small.csv")
+wildlife_small &lt;- read_csv("data/wildlife_impacts_small.csv", col_types = cols()) %&gt;% 
+  mutate(rounded_height = round(height/1000)) %&gt;% 
+   group_by(rounded_height) %&gt;% 
+   summarize(n = sum(n)) %&gt;% 
+   filter(!is.na(rounded_height))
+
+wildlife_err &lt;- wildlife_small
+wildlife_err[19, 2] &lt;- 600000 # instead of 6 we multiplied this observation by 1000
+
+p1 &lt;- ggplot(wildlife_small, aes(x = rounded_height, y = log10(n))) + 
+   geom_point() + 
+   stat_smooth(method = "lm") + coord_cartesian(ylim = c(-1, 5)) + theme_bw()
+p2 &lt;- ggplot(wildlife_err, aes(x = rounded_height, y = log10(n))) + 
+   geom_point() + 
+   stat_smooth(method = "lm") + coord_cartesian(ylim = c(-1, 5)) + theme_bw()
+cowplot::plot_grid(p1, p2)
+```
+
+&lt;img src="06-Multiple_linear_regression_and_correlation_files/figure-html/example for outliers-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# How are Types of Variables Used in Regression?
+
+As you have probably noticed, in the bird-planes example, we used a `sky` variable which has three values (factor). The regression model is linear, if so, how are factor variables treated?
+
+   * Factors are turned into dummy variables (0/1). 
+   
+      * How many dummies are needed for a 3-level factor? why?
+      
+   * Characters are treated the same
+   
+   * Ordinals - depending on definition, might be entered as polynomials, factors, or continuous
+   
+   * Logicals - as a 0/1 variable
+
+
+--
+
+
+<div class="countdown" id="timer_5dec2b6d" style="right:0;bottom:0;" data-warnwhen="0">
+<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
+</div>
+Questions:
+
+   * What is the meaning of the coefficient `\(\beta\)` of a logical variable?
+   
+   * What is the meaning of the coefficient `\(\beta\)` of a factor?
+   
+   * How would you consider a date type variable?
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
