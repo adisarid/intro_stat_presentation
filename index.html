@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
   <head>
-    <title>Multiple Linear Regression and Correlation</title>
+    <title>Regression, Design and Analysis of Single-Factor Experiments</title>
     <meta charset="utf-8" />
     <meta name="author" content="Adi Sarid" />
     <link href="libs/remark-css/metropolis.css" rel="stylesheet" />
@@ -13,11 +13,11 @@
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Multiple Linear Regression and Correlation
-## Lecture #7
+# Regression, Design and Analysis of Single-Factor Experiments
+## Lecture #8
 ### Adi Sarid
 ### Tel-Aviv University
-### updated: 2019-12-08
+### updated: 2019-12-14
 
 ---
 
@@ -80,319 +80,35 @@ th, td {
 
 
 
-# Reminder from previous lecture
+# Reminder from Previous Lecture
 
-We focused on simple linear regression.
+We focused on multiple linear regression, which assumes:
 
-   * We saw how simple linear regression can be used to find the relationship between two variables
-   
-   * For example, flight height and the number of bird strikes (or `log` or bird strikes)
-   
+`$$Y=\beta_0 + \beta_1X_1 + \beta_2X_2 + \ldots + \beta_pX_p + \epsilon$$`
+
 --
-   
-We discussed the base assumptions in linear regression:
-
-   * Linearity `\(Y=\beta_0+\beta_1x + \epsilon\)`
    
    * `\(\epsilon \sim \mathcal{N}(0,\sigma_\epsilon)\)`
    
    * For hypothesis testing on `\(\beta\)` we also require homoscedastity
+
+--
+
+   * We used the relationship `\(SS_T = SS_R + SS_E\)` to define:
    
---
-
-We discussed the objective function: the least squares `\(L\)`
+   * The coefficient of determination `\(R^2 = \frac{SS_R}{SS_T}\)`
 
 --
 
-We have shown how to find `\(\beta_0\)` and `\(\beta_1\)` from the partial derivative of `\(\partial L/\partial \beta_i\)`
+   * When `\(0\leq R^2\leq1\)`. High values correspond to a strong relationship
    
----
-
-# Reminder from previous lecture (2)
-
-`$$\hat{\beta}_0=\bar{y}-\hat{\beta}_1\bar{x}, \quad \hat{\beta}_1=\frac{S_{xy}}{S_{xx}}$$`
-
-Where:
-
-`$$S_{xx}=\sum_{i=1}^n{(x_i-\bar{x})^2}, \quad S_{xy}=\sum_{i=1}^n{(y_i-\bar{y})(x_i-\bar{x})}$$`
-
---
-
-We discussed the importance of `\(SS_E = \sum_{i=1}^n(y_i-\hat{y})^2\)`, and talked about its role in estimating `\(\sigma_\epsilon\)`:
-
-`$$\hat{\sigma}_\epsilon^2=\frac{SS_E}{(n-2)}$$`
-
---
-
-The variance of the coefficients is given by:
-
-`$$\operatorname{Var}(\hat{\beta}_1)= \frac{\sigma_\epsilon^2}{S_{xx}}$$`
-
-`$$\operatorname{Var}({\hat{\beta_0}}) = \sigma_\epsilon^2\left[\frac{1}{n} + \frac{\bar{x}^2}{S_{xx}}\right]$$`
+   * For the simple linear regression, we saw that `\(R^2=\hat\rho^2\)`, the correlation of `\(X\)` and `\(Y\)`
 
 ---
 
-# Reminder from previous lecture (3)
+# Reminder from Previous Lecture (2) - Solution of the Multiple Linear Regression
 
-The variance of `\(\beta_0, \beta_1\)` helped us devise a statistic and a hypothesis test for the parameters, i.e.:
-
-`$$T_0=\frac{\hat{\beta}_1 - 0}{\sqrt{\hat{\sigma}_\epsilon^2/S_{xx}}}$$`
-
---
-
-We've also seen the decomposition of the overall variance to the regression variance and error variance, i.e.:
-
-`$$\sum_{i=1}^n{(y_i-\bar{y})^2} = \sum_{i=1}^n{(\hat{y}_i-\bar{y})^2} + \sum_{i=1}^n{(y_i-\hat{y})^2}$$`
-
---
-
-`$$SS_T=SS_R + SS_E$$`
-
-Where `\(SS_R\)` has 1 degree of freedome, `\(SS_E\)` has `\(n-2\)` degrees of freedom, and `\(SS_T\)` has `\(n-1\)` degrees of freedom.
-
---
-
-Under a null hypothesis of `\(H_0: \beta_1=0\)`, both `\(SS_R, SS_E\)`  are `\(\chi^2\)` distributed, with `\(1, n-2\)` degrees of freedom respectively.
-
---
-
-This led us to an additional test, using analysis of variance.
-
----
-
-# Analysis of Variance for Regression Significance
-
-Then, the following statistic would be F-distributed, under the null hypothesis:
-
-`$$F_0=\frac{SS_R/1}{SS_E/(n-2)} = \frac{MS_R}{MS_E}$$`
---
-
-The intuition behind the statistic is: 
-
-   * As the mean square error `\(MS_E\)` decreases; and
---
-
-   * The variance explained by the regression model `\(MS_R\)` increases
---
-
-   * The model is a good fit to the data 
---
-
-   * Hence, the null hypothesis of no model, i.e., `\(\beta_1=0\)`, is rejected
-
---
-
-## ANOVA (Analysis of Variance) Table
-
-.small[
-| Source of Variation | Sum of Squares | df | Mean Squares | `\(F_0\)` |
-|----------------------|-----------------|-------|:------------:|---------------------|
-| Regression | `\(SS_R\)` | `\(1\)` | `\(MS_R\)` | `\(\frac{MS_R}{MS_E}\)` |
-| Error | `\(SS_E\)` | `\(n-2\)` | `\(MS_E\)` |  |
-| Total | `\(SS_T\)` | `\(n-1\)` |  |  |
-]
-
----
-
-# Coefficient of determination `\(R^2\)`
-
-We would like to measure the effect size of the regression. One possibility to measure the effect size is to use `\(R^2\)`:
-
-`$$R^2=\frac{SS_R}{SS_T}=1-\frac{SS_E}{SS_T}$$`
-
-Since `\(SS_T=SS_R + SS_E\)`, and all sizes are non negative:
-
-`$$0\leq R^2 \leq1$$`
-
-As the fit is better, `\(R^2\)` increases.
-
----
-
-# Correlation
-
-In probability, the correlation coefficient between two variables `\(X\)` and `\(Y\)` is defined as:
-
-`$$\rho=\frac{\sigma_{XY}}{\sigma_X\sigma_Y}$$`
-
-Where `\(\sigma_{XY}^2=\operatorname{Cov}(X,Y)=E[(X-\mu_x)(Y-\mu_Y)]=E[XY]-E[X]E[Y]\)`
-
-The correlation `\(\rho\in[-1, 1]\)`. When `\(\rho=1 \text{ or } -1\)`, this means that the two variables have a linear relationship between them, and if it is 0 then the covariance is 0 and the two variables are independent.
-
-We would like to see the relationship between `\(\rho\)` and `\(R^2\)`.
-
---
-
-We can estimate `\(\rho\)` using:
-
-`$$\hat{\rho} = \frac{S_{xy}}{\sqrt{S_{xx}S_{yy}}}$$`
-
-
----
-
-# Correlation (2)
-
-We have defined `\(SS_T = \sum(y_i-\bar{y})^2=S_{yy}\)`
-
---
-
-Remember that:
-
-   * `\(\hat{\beta}_0 = \bar{y}-\hat{\beta}_1\bar{x}\)`
-   
-   * `\(\hat{\beta}_1 = \frac{S_{xy}}{S_{xx}} = \hat{\rho}\sqrt{\frac{S_{yy}}{S_{xx}}}\)`, which demonstrates the relationship between `\(\hat{\rho}\)` and `\(\beta_1\)`. 
-
---
-
-Also note that: 
-
-`$$SS_E=\sum(y_i-\hat{y}_i)^2=S_{yy}-\beta_1S_{xy}$$`
-
-To see this use the above formulas for `\(\beta_0\)` and `\(\beta_1\)`:
-
-`$$SS_E=\sum(y_i-\hat{y}_i)^2=\sum(y_i-\hat\beta_0-\hat\beta_1x_i)^2=\sum\left((y_i-\bar y)-\beta_1(x_i-\bar x)\right)^2=\\ S_{yy}-2\beta_1S_{xy}+\beta_1^2S_{xx} = S_{yy}-\beta_1S_{xy}$$`
-
-`$$1-R^2 = 1-SS_R/SS_T = SS_E/S_{yy} = SS_E/SS_T = 1-\beta_1S_{xy}/S_{yy} = 1-\frac{S_{xy}^2}{S_{xx}S_{yy}} = 1-\hat\rho^2$$`
-
----
-
-# Correlation (3)
-.small[
-Hence, we have proven that coefficient of determination `\(R^2\)` is in fact the estimate for the square of the correlation coefficient `\(\hat\rho^2\)` of `\(X\)` and `\(Y\)`. 
-]
-
---
-
-.small[
-In general, correlation is interesting because it can help us find simple association rules between variables. Let's see an example with movies genres. Adopted from a [scraped imdb](https://github.com/sundeepblue/movie_rating_prediction) source.
-]
-
---
-
-.tiny[
-
-```r
-library(tidyverse)
-# "https://raw.githubusercontent.com/sarid-ins/statistical_learning_course/master/datasets/scraped_imdb/movie_db_clean.csv")
-movies &lt;- suppressWarnings(read_csv("data/movie_db_clean.csv", col_types = cols()) %&gt;% 
-  janitor::clean_names() %&gt;% select(adventure:western) %&gt;%  mutate_all(~.*1))
-genres_corr &lt;- cor(movies)
-#ggcorrplot::ggcorrplot(genres_corr, type = "upper", hc.order = T, hc.method = "complete")
-```
-]
-.right-plot[
-&lt;img src="06-Multiple_linear_regression_and_correlation_files/figure-html/do the genres plot-1.png" style="display: block; margin: auto;" /&gt;
-]
----
-
-# Multiple Linear Regression - Background 
-
-.small[So far we treated regression with only two variable (one dependent, `\(Y\)` and one independent `\(X\)`).]
-
---
-
-.small[
-In most cases, we will have more than one independent variable, i.e., `\(X_1,\ldots,X_p\)`. Our model becomes:
-
-`$$Y=\beta_0 + \beta_1X_1 + \beta_2X_2 + \ldots + \beta_pX_p + \epsilon$$`
-]
-
---
-
-.small[
-This can also be extended to accomodate for more complex relationships such as:
-
-`$$Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_{12}X_{1}X_2 + \epsilon$$`
-]
-
---
-
-.small[
-or
-
-`$$Y = \sin(X_1) + \cos(X_1X_2) + \epsilon$$`
-]
-
---
-
-.small[
-The principles and assumptions we discussed still hold, but some careful handling is needed, and this is what we will discuss today.
-]
-
-.tiny[
-
-```r
-ex1 &lt;- crossing(x1 = seq(0, 5, 0.05),
-         x2 = seq(0, 5, 0.05)) %&gt;% 
-  mutate(y = sin(x1) + cos(x2*x1) + rnorm(NROW(x1), sd = 0.05))
-p1 &lt;- ggplot(ex1, aes(x = x1, y = x2, z = y)) + 
-  geom_contour() + 
-  theme_bw()
-p2 &lt;- ggplot(ex1, aes(x = x1, y = x2, fill = y)) + 
-  geom_tile() + 
-  theme_bw()
-#cowplot::plot_grid(p1, p2)
-```
-]
-
-.right-plot[
-&lt;img src="06-Multiple_linear_regression_and_correlation_files/figure-html/some complex relationship the plot-1.png" style="display: block; margin: auto;" /&gt;
-]
-
----
-
-# Motivation
-
-Let's analyze the example from last lecture (planes and birds), only this time, enrich the problem.
-
---
-
-.tiny[
-
-```r
-wildlife_medium &lt;- read_csv("data/wildlife_impacts_medium.csv", col_types = cols())
-lm(formula = log10(n) ~ ., data = wildlife_medium) %&gt;% 
-  summary()
-```
-
-```
-## 
-## Call:
-## lm(formula = log10(n) ~ ., data = wildlife_medium)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -1.77372 -0.39233 -0.02053  0.36176  2.02827 
-## 
-## Coefficients:
-##                  Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)     2.4689987  0.1360094  18.153  &lt; 2e-16 ***
-## skyOvercast    -0.3204574  0.0601218  -5.330 1.33e-07 ***
-## skySome Cloud  -0.1103055  0.0516954  -2.134   0.0332 *  
-## rounded_height -0.0909040  0.0068071 -13.354  &lt; 2e-16 ***
-## rounded_speed   0.0002722  0.0004548   0.599   0.5496    
-## num_engs       -0.5461361  0.0431463 -12.658  &lt; 2e-16 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 0.5961 on 698 degrees of freedom
-## Multiple R-squared:  0.3501,	Adjusted R-squared:  0.3454 
-## F-statistic:  75.2 on 5 and 698 DF,  p-value: &lt; 2.2e-16
-```
-]
-
---
-
-Can you say what's the problem of examining this dataset, in this context? (think about possible biases)
-
----
-
-# Least Squares Estimation of the Parameters
-
-We will use matrix notation.  For each observation `\(i\)` we have:
-
-`$$y_i = \beta_0 + \beta_1x_{i1} + \ldots + \beta_kx_{ik} + \epsilon_i, \quad i = 1,\ldots,n$$`
-
-This can be represented as:
+We represented the multiple linear regression as a matrix equation:
 
 `$$y = X\beta+\epsilon$$`
 
@@ -408,7 +124,7 @@ We are looking for `\(\beta\)` which minimizes `\(L = \epsilon^t\epsilon=(y-X\be
 
 ---
 
-# Least Squares Estimation of the Parameters (2)
+# Reminder (3) - Least Squares Estimation of the Parameters
 
 The resulting equations are given by:
 
@@ -442,23 +158,33 @@ Is an unbiased estimate of `\(\sigma_\epsilon^2\)`
 
 ---
 
-# Hypothesis Tests
+# Reminder (4) - Hypothesis Tests on Individual Coefficients
 
-The vector `\(\hat\beta\)` is an unbiased estimate:
+We used the fact that:
 
-`$$E\hat\beta = E[(X^tX)^{-1}X^ty]=E[(X^tX)^{-1}X^t(X\beta+\epsilon)]=E[I\beta + (X^tX)^{-1}X^t\epsilon] = \beta$$`
+   * `\(\hat\beta\)` is unbiased and 
+   
+   * `\(\operatorname{Var}(\hat\beta_j)=\sigma^2[(X^tX)^{-1}]_{jj}\)`
+   
+To devise a hypothesis test for the individual `\(\hat\beta_j\)`:
 
---
+   * `\(H_0: \beta_j=0\)`
+   
+   * `\(H_1: \beta_j\neq0\)`
 
-The `\(\beta\)` coefficients' variance is given by diagonal elements of `\((X^tX)^{-1}\)` times `\(\sigma^2\)`.
+With the statistic
 
---
+`$$T_0=\frac{\hat\beta_j}{\sqrt{\hat\sigma^2C_{jj}}}=\frac{\hat\beta_j}{\operatorname{se}(\hat\beta_j)}$$`
 
-Now that we have found the expected value and the variance, we are ready for some hypothesis tests.
+---
 
---
+# Reminder (5) - Hypothesis Tests on All Coefficients
 
-We are going to use the following set of hypothesis:
+We used the F-statistic 
+
+`$$F_0=\frac{SS_R/k}{SS_E/(n-k-1)}=\frac{MS_R}{MS_E}$$`
+
+To devise a broader test:
 
    * `\(H_0:\beta_1=\beta_2=\ldots=\beta_k=0\)`
    
@@ -466,21 +192,7 @@ We are going to use the following set of hypothesis:
 
 --
 
-Under the null hypothesis, `\(SS_R/\sigma^2\)` is `\(\chi^2_{\text{df}=k}\)`, and `\(SS_E/\sigma^2\)` is `\(\chi^2_{\text{df}=n-k-1}\)`.
-
---
-
-Our statistic is:
-
-`$$F_0=\frac{SS_R/k}{SS_E/(n-k-1)}=\frac{MS_R}{MS_E}$$`
-
-We reject `\(H_0\)` if the computed value of the statistic `\(f_0&gt;f_{1-\alpha,k,n-k}\)` (the right tail of `\(F\)` distribution)
-
----
-
-# Hypothesis Tests - ANOVA table
-
-The process is summarized in an analysis of variance table, as follows:
+.small[We examined the corresponding ANOVA table]
 
 .small[
 | Source of Variation | Sum of Squares | df | Mean Squares | `\(F_0\)` |
@@ -490,304 +202,38 @@ The process is summarized in an analysis of variance table, as follows:
 | Total | `\(SS_T\)` | `\(n-1\)` |  |  |
 ]
 
---
+---
 
-## Adjusted `\(R^2\)`
+# The adjusted `\(R^2\)`
 
-We discussed `\(R^2 = 1-\frac{SS_E}{SS_T}\)` however, as the number of parameters increases, the error always decreases, and the `\(R^2\)` increases. This is prone to over-fitting (demonstration coming up).
+We defined the adjusted `\(R_\text{adj}^2\)`: 
 
---
+`$$R^2_\text{adj}= 1 - \frac{SS_E/(n-p)}{SS_T/(n-1)}$$`
 
-To mitigate this phenomena we adjust the `\(R^2\)`.
-
-`$$R^2_{\text{adj}} = 1 - \frac{SS_E/(n-p)}{SS_T/(n-1)}$$`
-
---
-
-As the number of parameters increases the numerator increases, which makes the overall `\(R^2_\text{adj}\)` decrease.
+Which provides a penalty for increasing the number of parameters, however it does not necessarily help us avoid over-fitting.
 
 ---
 
-# Some Formulas for `\(SS_E, SS_R, SS_T\)`
+# Confidence and prediction intervals
 
-Some formulas that we will use later on today. However, in practice the computer will calculate all the sizes we need.
-
-`$$SS_E = \sum(y_i-\hat y_i)^2=e^te$$`
-
-Substitute `\(e = y-\hat y = y- X\hat\beta\)` we obtain:
-
-`$$SS_E = e^te = (y-X\hat\beta)^t(y-X\beta)=y^ty-2\hat\beta^t X^ty+\hat\beta^t(X^tX)\hat\beta=y^ty-2\hat\beta^t X^ty + \beta^t(X^tX)(X^tX)^{-1}X^ty=y^ty-\hat\beta^t X^ty$$`
+We talked about confidence and prediction intervals:
 
 --
 
-Since `\(SS_T = \sum(y_i-\bar{y})^2 = \sum y_i^2 - (\sum y_i)^2/n = y^ty - (\sum y_i)^2/n\)` we get:
-
-`$$y^ty - (\sum y_i)^2/n = SS_T = SS_R + SS_E = SS_R + y^ty-\hat\beta^t X^ty$$`
-
---
-
-Hence,
-
-`$$SS_R = \hat\beta^tX^ty-\left(\sum_{i=1}^n y_i\right)^2/n$$`
-
---
-
-Remember these for later!
-
----
-
-# Overfitting a Regression Model: `\(R^2\)` and adjusted `\(R^2\)`
-
-Overfitting is a phenomena which occurrs when the number of parameters, `\(p\)` is very large compared to `\(n\)`
-
-   * In such a case a model is able to fit very well on the data
-   
-   * On new observations, the model will suffer large errors
-   
---
-
-Various methods exist to handle and avoid this phenomena, such as train/test splits.
-
---
-
-How would you devise an experiment to demonstrate overfitting?
-
-<div class="countdown" id="timer_5decbf4c" style="right:0;bottom:0;" data-warnwhen="0">
-<code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
-</div>
-
---
-
-See demonstration [here](https://github.com/adisarid/intro_statistics_R/blob/master/lectures/06-Note_about_overfitting.Rmd).
-
----
-
-# Hypothesis Tests on Individual Coefficients
-
-Sometimes, we are interested in the significance of a specific variable. I.e.,
-
-   * `\(H_0: \beta_j=0\)`
-   
-   * `\(H_1: \beta_j\neq0\)`
-
-First, remember that we noted that the `\(j\)`-th element on the diagonal of `\(\sigma^2(X^tX)^{-1}\)` contains the variance of of the `\(\hat\beta_j\)` (for an intuitive explanation see [here](https://stats.stackexchange.com/questions/267948/intuitive-explanation-of-the-xtx-1-term-in-the-variance-of-least-square)).
-
-Set `\(C=(X^tX)^{-1}\)` then under the null hypothesis, we have the following student's-t statistic:
-
-`$$T_0=\frac{\hat\beta_j}{\sqrt{\hat\sigma^2C_{jj}}}=\frac{\hat\beta_j}{\operatorname{se}(\hat\beta_j)}$$`
-
---
-
-The null hypothesis is rejected when `\(|t_0|&gt;t_{1-\alpha/2, n-p}\)`
-
----
-
-# Hypothesis Testing - Subset of Coefficients
-
-We now want to generalize the previous approach, which treated the null hypothsis of one variable into an arbitrary **subset** of variables.
-
-Let `\(\vec{\beta}_1\)` be a coefficient vector of `\((r\times1)\)` and `\(\vec{\beta}_2\)` a coefficient vector of `\([(p-r)\times1]\)`, i.e.:
-
-`$$\beta = \left[\begin{array}{c}\vec\beta_1\\\vec\beta_2\end{array}\right]$$`
-
---
-
-We want to test the hypothesis:
-
-   * `\(H_0: \vec\beta_1=\vec0\)`
-   
-   * `\(H_1: \vec\beta_1\neq\vec0\)`
-
---
-
-This yields two models: 
-
-The reduced null model: `\(y = X_2\vec\beta_2 + \epsilon\quad\)`   (the `\(\vec\beta_1\)` variables are all `\(0\)`).
-
-The alternative full model `\(y = X\beta + \epsilon\)`.
-
----
-
-# Hypothesis Testing - Subset of Coefficients (2)
-
-Compute `\(SS_R(\cdot)\)` for each of the models (the full model, the reduced model), also compute the contribution of the addition of `\(\vec\beta_1\)`:
-
-`$$SS_R(\beta) = \hat\beta^tX^ty, \quad \text{ with } p=k+1 \text{ degrees of freedom}$$`
-
---
-
-`$$SS_R(\vec\beta_2)=\vec\beta_2^tX^t_2y, \quad \text{ with } p-r \text{ degrees of freedom}$$`
-
---
-
-The regression sum of squares due to `\(\vec\beta_1\)` given that `\(\vec\beta_2\)` is already in the model, is:
-
-`$$SS_R(\vec\beta_1|\vec\beta_2) = SS_R(\beta) - SS_R(\vec\beta_2), \quad \text{ with } r \text{ degrees of freedom}$$`
-
---
-
-Our test statistic uses the partial `\(F\)` test (with `\(df=r, n-p\)`), i.e.,
-
-`$$F_0 = \frac{SS_R(\vec\beta_1|\vec\beta_2)/r}{MS_E}$$`
-
---
-
-Reject the null hypothesis if `\(f_0 &gt; f_{1-\alpha, r,n-p}\)` (the right tail of the `\(F\)`-distribution).
-
---
-
-Later we will discuss the stepwise algorithm, which aims to find good `\(\left\{\beta_i\right\}_i\)` subsets, for improving the model.
-
----
-
-# Hypothesis Testing - Subset of Coefficients - Example
-
-Demonstration for a subset hypothesis test:
-
-.small[
-
-```r
-full_model &lt;- lm(formula = log10(n) ~ ., data = wildlife_medium)
-partial_model &lt;- lm(formula = log10(n) ~ rounded_height + num_engs, data = wildlife_medium) # omitted sky, rounded_speed
-SS_T &lt;- sum((log10(wildlife_medium$n) - mean(log10(wildlife_medium$n)))^2)
-
-aov_full &lt;- anova(full_model)
-aov_part &lt;- anova(partial_model)
-
-SS_R_full &lt;- sum(aov_full$`Sum Sq`[1:4])
-SS_E_full &lt;- SS_T - SS_R_full
-SS_R_part &lt;- sum(aov_part$`Sum Sq`[1:2])
-SS_R_add &lt;- SS_R_full - SS_R_part
-
-F_0 &lt;- (SS_R_add/3)/(SS_E_full/(698))
-
-df(F_0, df1 = 3, df2=698)
-```
-
-```
-## [1] 4.509414e-06
-```
-
-```r
-qf(0.95, df1 = 3, df2 = 698)
-```
-
-```
-## [1] 2.617663
-```
-]
-
---
-
-We reject the null hypothesis with a p-value of `\(4.509414\times 10^{-6}\)`.
-
----
-
-# Confidence Intervals
-
-For a coefficient's confidence interval, we can use the statistic:
-
-`$$T=\frac{\hat\beta_j-\beta_j}{\sqrt{\hat\sigma^2C_{jj}}}$$`
-
---
-
-Therefore, the two sided confidence interval is:
-
-`$$\hat\beta_j + t_{\alpha/2,n-p}\sqrt{\hat\sigma^2C_{jj}}\leq\beta_j\leq\hat\beta_j + t_{1-\alpha/2,n-p}\sqrt{\hat\sigma^2C_{jj}}$$`
-
---
-
-.tiny[
-
-```r
-deg_f &lt;- NROW(wildlife_medium) - 6
-t_val &lt;- qt(p = 0.975, df = deg_f)
-full_model_sum &lt;- summary(full_model)
-ci &lt;- tibble(coef = full_model$coefficients) %&gt;% 
-   mutate(lb = coef - t_val*full_model_sum$coefficients[,2],
-          ub = coef + t_val*full_model_sum$coefficients[,2] )
-ci
-```
-
-```
-## # A tibble: 6 x 3
-##        coef        lb       ub
-##       &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-## 1  2.47      2.20      2.74   
-## 2 -0.320    -0.438    -0.202  
-## 3 -0.110    -0.212    -0.00881
-## 4 -0.0909   -0.104    -0.0775 
-## 5  0.000272 -0.000621  0.00117
-## 6 -0.546    -0.631    -0.461
-```
-]
-
----
-
-# Mean Response Confidence Interval
-
-The point estimate for a new response at a point `\(x_0=[1, x_{01}, \dots, x_{0k}]^t\)` is:
-
-`$$\hat\mu_{Y|x_0} = x_0^t\hat\beta$$`
-
---
-
-The estimator is unbiased and its variance is:
-
-`$$\operatorname{Var}(\hat\mu_{Y|x_0}) = \sigma^2x_0^t(X^tX)^{-1}x_0$$`
-
---
-
-Hence, we can use the following statistic for building our confidence interval:
-
-`$$\frac{\hat\mu_{Y|x_0} - \mu_{Y|x_0}}{\sqrt{\hat\sigma^2x_0^t(X^tX)^{-1}x_0}}$$`
-
---
+Confidence interval:
 
 `$$\hat\mu_{Y|x_0} + t_{\alpha/2, n-p}\sqrt{\hat\sigma^2x_0^t(X^tX)^{-1}x_0} \leq \mu_{Y|x_0} \leq \hat\mu_{Y|x_0} + t_{1-\alpha/2, n-p}\sqrt{\hat\sigma^2x_0^t(X^tX)^{-1}x_0}$$`
 
----
+--
 
-# Prediction Intervals for New Observations
-
-In case of a prediction interval for a new observation, the point estimate remains the same:
-
-`\(\hat y_0 = x_0^t\hat\beta\)`
-
-And the prediction interval is given by:
+Prediction interval:
 
 `$$\hat y_0 + t_{\alpha/2, n-p}\sqrt{\hat\sigma^2(1+x_0^t(X^tX)^{-1}x_0)} \leq Y_0 \leq \hat y_0 + t_{1-\alpha/2, n-p}\sqrt{\hat\sigma^2(1+x_0^t(X^tX)^{-1}x_0)}$$`
 
----
+--
 
-# Example: prediction and mean response confidence intervals
-.tiny[
-
-```r
-wildlife_new &lt;- crossing(sky = c("No Cloud", "Some Cloud", "Overcast"),
-                         rounded_height = 0:25,
-                         num_engs = 2,
-                         rounded_speed = 200)
-new_responses_ci &lt;- predict(full_model, newdata = wildlife_new, interval = "confidence") %&gt;% as_tibble() %&gt;% 
-   rename_at(vars(2:3), ~{paste0(., "_ci")})
-new_responses_pi &lt;- predict(full_model, newdata = wildlife_new, interval = "prediction") %&gt;% as_tibble() %&gt;% 
-   select(-fit) %&gt;% 
-   rename_all(~{paste0(., "_pi")})
-wildlife_tib &lt;- wildlife_new %&gt;% 
-   bind_cols(new_responses_ci,
-             new_responses_pi) %&gt;% 
-   mutate_at(vars(fit:upr_pi), ~10^(.)) %&gt;% 
-   pivot_longer(cols = fit:upr_pi, names_to = "type", values_to = "value")
-ggplot(wildlife_tib, aes(x = rounded_height, y = value, color = type, linetype = type)) + 
-   geom_line(size = 1) +
-   facet_wrap(~sky) + 
-   scale_color_manual(values = c("blue", "red", "brown", "red", "brown")) +
-   scale_linetype_manual(values = c(1, 2, 5, 2, 5)) +
-   theme_bw()
-```
-
-&lt;img src="06-Multiple_linear_regression_and_correlation_files/figure-html/prediction and confidence intervals-1.png" style="display: block; margin: auto;" /&gt;
-]
+Let's see this in action, in the following R Shiny app: 
+[https://sarid.shinyapps.io/intervals_demo/](https://sarid.shinyapps.io/intervals_demo/)
 
 ---
 
@@ -805,7 +251,7 @@ What do you think is the problem with trying to provide an extrapolation (fit) a
 
 Can you think of a similar example but from a different domain?
    
-<div class="countdown" id="timer_5decbef8" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_5df50227" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -837,7 +283,7 @@ p2 &lt;- ggplot(wildlife_err, aes(x = rounded_height, y = log10(n))) +
 cowplot::plot_grid(p1, p2)
 ```
 
-&lt;img src="06-Multiple_linear_regression_and_correlation_files/figure-html/example for outliers-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="07-Single_factor_experiments_ANOVA_files/figure-html/example for outliers-1.png" style="display: block; margin: auto;" /&gt;
 ]
 ---
 
@@ -855,20 +301,566 @@ As you have probably noticed, in the bird-planes example, we used a `sky` variab
    
    * Logicals - as a 0/1 variable
 
-
 --
 
-
-<div class="countdown" id="timer_5decbf5d" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_5df50066" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
-Questions:
+
+Questions (hint: `\(Y=\beta_0 + \beta_1X_1 + \beta_2X_2 + \ldots + \beta_pX_p + \epsilon\)`):
 
    * What is the meaning of the coefficient `\(\beta\)` of a logical variable?
    
    * What is the meaning of the coefficient `\(\beta\)` of a factor?
    
    * How would you consider a date type variable?
+
+---
+ 
+# Variable Selection via Stepwise Regression
+
+In cases we have many independent variables (i.e., `\(X_i\)`s) we want to reduce the complexity of the regression model, and focus only on the most important or most influential variables.
+
+--
+
+For that, we can use the **stepwise regression** algorithm.
+
+   * Backward elimination
+   
+   * Forward selection
+   
+   * Backward-forward
+
+--
+
+All algorithms are greedy algorithms: look one step ahead, and choose the best course of action. Hence, the might not reach the optimal solution.
+
+---
+
+# The Backward Elimination Algorithm
+
+   1. Set current model = the "full" model (all independent variables)
+
+--
+   
+   2. Use some accuracy measure to examine the influence of the removal of each of the variables. E.g., the Akaike Information Criteria (AIC = `\(-2\log(L) + 2df\)`)
+
+--
+   
+   3. Are there a variabled which contributes to the improvement of the measure (e.g. decrease of the AIC)? 
+   
+      a. **Yes**: Remove the variable which its removal contributes the most (to the improvement of the measure), Update the current model accordingly, and go to step 2. 
+      
+      b. **No**: Algorithm stops and outputs the current model.
+
+--
+      
+## The forward selection
+
+A similar algorithm, instead of removing, add variables one at a time
+
+--
+
+## The backward-forward
+
+Combination, at each iteration check both removal and addition.
+
+---
+
+# Intuition for the AIC
+
+AIC = `\(-2\log(L) + 2df\)`
+
+The AIC uses the likelihood `\(L\)`:
+
+`$$L = \prod_{i=1}^n{f(\hat{y}_i)}$$`
+
+(Higher liklihood value is better, hence lower `\(-2\log(L)\)` is better)
+
+--
+
+As the number of parameters in the model increases, the model is more prone to overfitting, hence we a penalty of `\(2df\)` (a high `\(df\)`, i.e., a lot of parameters is bad for us).
+
+--
+
+Hence, we want to minimize the AIC.
+
+The value of AIC has no meaning, except for the ability to compare two models.
+
+--
+
+Other measures also exist, e.g.: 
+
+   * Montgomery uses the F-Statistic
+   
+   * Another measure is the BIC = `\(- 2\log(L) + \log(n)df\)`
+
+---
+
+# Stepwise Regression - Example: Car Efficiency.
+
+.tiny[
+
+```r
+mtcars_lm &lt;- lm(formula = mpg ~ ., data = mtcars)
+step(mtcars_lm, direction = "backward")
+```
+
+```
+## Start:  AIC=70.9
+## mpg ~ cyl + disp + hp + drat + wt + qsec + vs + am + gear + carb
+## 
+##        Df Sum of Sq    RSS    AIC
+## - cyl   1    0.0799 147.57 68.915
+## - vs    1    0.1601 147.66 68.932
+## - carb  1    0.4067 147.90 68.986
+## - gear  1    1.3531 148.85 69.190
+## - drat  1    1.6270 149.12 69.249
+## - disp  1    3.9167 151.41 69.736
+## - hp    1    6.8399 154.33 70.348
+## - qsec  1    8.8641 156.36 70.765
+## &lt;none&gt;              147.49 70.898
+## - am    1   10.5467 158.04 71.108
+## - wt    1   27.0144 174.51 74.280
+## 
+## Step:  AIC=68.92
+## mpg ~ disp + hp + drat + wt + qsec + vs + am + gear + carb
+## 
+##        Df Sum of Sq    RSS    AIC
+## - vs    1    0.2685 147.84 66.973
+## - carb  1    0.5201 148.09 67.028
+## - gear  1    1.8211 149.40 67.308
+## - drat  1    1.9826 149.56 67.342
+## - disp  1    3.9009 151.47 67.750
+## - hp    1    7.3632 154.94 68.473
+## &lt;none&gt;              147.57 68.915
+## - qsec  1   10.0933 157.67 69.032
+## - am    1   11.8359 159.41 69.384
+## - wt    1   27.0280 174.60 72.297
+## 
+## Step:  AIC=66.97
+## mpg ~ disp + hp + drat + wt + qsec + am + gear + carb
+## 
+##        Df Sum of Sq    RSS    AIC
+## - carb  1    0.6855 148.53 65.121
+## - gear  1    2.1437 149.99 65.434
+## - drat  1    2.2139 150.06 65.449
+## - disp  1    3.6467 151.49 65.753
+## - hp    1    7.1060 154.95 66.475
+## &lt;none&gt;              147.84 66.973
+## - am    1   11.5694 159.41 67.384
+## - qsec  1   15.6830 163.53 68.200
+## - wt    1   27.3799 175.22 70.410
+## 
+## Step:  AIC=65.12
+## mpg ~ disp + hp + drat + wt + qsec + am + gear
+## 
+##        Df Sum of Sq    RSS    AIC
+## - gear  1     1.565 150.09 63.457
+## - drat  1     1.932 150.46 63.535
+## &lt;none&gt;              148.53 65.121
+## - disp  1    10.110 158.64 65.229
+## - am    1    12.323 160.85 65.672
+## - hp    1    14.826 163.35 66.166
+## - qsec  1    26.408 174.94 68.358
+## - wt    1    69.127 217.66 75.350
+## 
+## Step:  AIC=63.46
+## mpg ~ disp + hp + drat + wt + qsec + am
+## 
+##        Df Sum of Sq    RSS    AIC
+## - drat  1     3.345 153.44 62.162
+## - disp  1     8.545 158.64 63.229
+## &lt;none&gt;              150.09 63.457
+## - hp    1    13.285 163.38 64.171
+## - am    1    20.036 170.13 65.466
+## - qsec  1    25.574 175.67 66.491
+## - wt    1    67.572 217.66 73.351
+## 
+## Step:  AIC=62.16
+## mpg ~ disp + hp + wt + qsec + am
+## 
+##        Df Sum of Sq    RSS    AIC
+## - disp  1     6.629 160.07 61.515
+## &lt;none&gt;              153.44 62.162
+## - hp    1    12.572 166.01 62.682
+## - qsec  1    26.470 179.91 65.255
+## - am    1    32.198 185.63 66.258
+## - wt    1    69.043 222.48 72.051
+## 
+## Step:  AIC=61.52
+## mpg ~ hp + wt + qsec + am
+## 
+##        Df Sum of Sq    RSS    AIC
+## - hp    1     9.219 169.29 61.307
+## &lt;none&gt;              160.07 61.515
+## - qsec  1    20.225 180.29 63.323
+## - am    1    25.993 186.06 64.331
+## - wt    1    78.494 238.56 72.284
+## 
+## Step:  AIC=61.31
+## mpg ~ wt + qsec + am
+## 
+##        Df Sum of Sq    RSS    AIC
+## &lt;none&gt;              169.29 61.307
+## - am    1    26.178 195.46 63.908
+## - qsec  1   109.034 278.32 75.217
+## - wt    1   183.347 352.63 82.790
+```
+
+```
+## 
+## Call:
+## lm(formula = mpg ~ wt + qsec + am, data = mtcars)
+## 
+## Coefficients:
+## (Intercept)           wt         qsec           am  
+##       9.618       -3.917        1.226        2.936
+```
+
+```r
+# step(lm(formula = mpg ~ 1, data = mtcars), 
+#      direction = "forward",
+#      scope = formula(lm(mpg ~ ., data = mtcars)))
+```
+]
+
+---
+
+# Refresher and Recap - Test-like Exercises: Descriptive Statistics
+
+Now we are going to solve three exercises which might resemble exercises which will appear in the test.
+
+.small[Explain the different elements of a boxplot, i.e., in the following chart: 
+
+   1. What does the line in the middle of the box (the blue area) stands for?
+   
+   2. What do the top and bottom boundaries of the chart's box stand for?
+   
+   3. What are the whiskers and how do they help us?
+   
+   4. What does the dot at the upper side of the chart stands for?
+   
+   5. How would you use a boxplot to recognize a normal distribution?
+   
+&lt;img src="07-Single_factor_experiments_ANOVA_files/figure-html/boxplot question-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Test-like Exercises: Confidence and Prediction Intervals
+
+The following exercise is similar to Walpole, *et al.* (Chapter 9, page 245, ex. 7).
+
+A random sample of `\(n=100\)` car owners show that in the state of Virginia, a car drives 23,500 km per year with a sample standard deviation of 3900 km.
+
+   a. Construct a 99% confidence interval for the average number of kilometers a car is driven annually in Virginia.
+   
+   b. What can we assert with a 99% confidence interval about the possible size of our error if we estimate the average number of kilometers driven by car owners in Virgina to be 23,500 km?
+   
+   c. Danny has just moved to Virginia, provide an upper bound (one sided prediction interval) at a 95% confidence interval to the amount of kilometers Danny will drive in the next year.
+   
+---
+
+# Test-like Exercises: Two Sample Tests, p-value
+
+The following exercise is from Walpole, *et al.*, (chapter 9, page 319, ex. 9).
+
+A study at the University of Colorado shows that running increases the percent resting metabolic rate (RMR) in older women. The average RMR of 30 elderly women runners was 34.0% higher than the average RMR of 30 sedentary elderly women. The standard deviations were 10.5 and 10.2 respectively. 
+
+Was there a significant increase in RMR of the women runnders over the sedentary women?
+
+Assume the populations are normally distributed with equal variances. Use a p-value to report you conclusions.
+
+---
+
+# Experiment Design - Motivation
+
+With methods of hypothesis testing, we were able to discern the differences between two groups (i.e., unpaird two-sample test).
+
+For example trying to see if cars with 4 cylinders are more efficient than cars with 8 cylinders.
+
+.small[
+
+```r
+mtcars %&gt;% 
+   filter(cyl != 6) %&gt;% 
+   t.test(formula = mpg ~ cyl, data = .)
+```
+
+```
+## 
+## 	Welch Two Sample t-test
+## 
+## data:  mpg by cyl
+## t = 7.5967, df = 14.967, p-value = 1.641e-06
+## alternative hypothesis: true difference in means is not equal to 0
+## 95 percent confidence interval:
+##   8.318518 14.808755
+## sample estimates:
+## mean in group 4 mean in group 8 
+##        26.66364        15.10000
+```
+]
+
+---
+
+# Experiment Design - Motivation (2)
+
+Sometimes, we have more than two levels, in which case, we would like to devise a test which will compare all levels.
+
+--
+
+In the case of a single variable with multiple levels, this is called *single factor experiments* (in the next lecture we will also discuss *multi factor experiments*, when there are multiple levels).
+
+--
+
+Experiments invlove:
+
+   * Conjecture - The hypothesis that motivates the experiment
+   
+   * Experiment - The actual test performed to investigate the conjecture
+   
+   * Analysis - Statistical analysis of the collected data
+   
+   * Conclusions - What has been learned
+   
+The process is iterated: to improve the experiment (e.g., add new variables or change the methods) and learn more.
+
+--
+
+.small[The following material is covered in Montgomery chapter 13.]
+
+---
+
+# Experiment Design - Motivation (3)
+
+We would like a statistical that would highlight the efficiency of cars as a function of the number of cylinders. 
+
+--
+
+A boxplot can visually illustrate what we are looking for, but we cannot yield strength or significance from it.
+
+
+```r
+ggplot(mtcars, aes(y = mpg, x = factor(cyl))) + 
+   geom_boxplot(fill = "lightblue") + 
+   theme_bw()
+```
+
+&lt;img src="07-Single_factor_experiments_ANOVA_files/figure-html/mtcars cyl comparison-1.png" style="display: block; margin: auto;" /&gt;
+
+--
+
+Question: How would you use linear regression to examine this relationship?
+
+---
+
+# The Completely Randomized Single-Factor Experiment
+
+Each factor level is called a *treatment* (i.e., for different treatments administered in an experiment).
+
+--
+
+The experimenter randomely samples subjects (either of equally sized groups or varying sized groups).
+
+--
+
+We describe the observations for a **completely randomized design** by a linear statistical model:
+
+`$$Y_{ij} = \mu + \tau_i + \epsilon_{ij}, \quad i = 1,\ldots,\ j=1,\ldots n$$`
+
+The value `\(\mu_i=\mu+\tau_i\)` is the mean value of the `\(i\)`th treatment.
+
+--
+
+We assume that the errors `\(\epsilon_{i,j}\)` are normally and independently distributed `\(\mathcal{N}(0, \sigma^2)\)`.
+
+--
+
+Two methods to select the treatments:
+
+   * **Fixed-effects model**: the `\(a\)` treatments were chosen specifically.
+   
+   * **Random-effects model** (components of variance): the `\(a\)` treatments were a random sample from a larger population of treatments. We would like to extend the conclusions for additional treatments.
+
+--
+
+For now, we are going to focus on the **fixed effects model**.
+
+---
+
+# The Fixed-Effects Model
+
+The treatments `\(\tau_i\)` are defined as deviations from the overall mean `\(\mu\)` such that: 
+
+`$$\sum_{i=1}^a{\tau_i}=0$$`
+
+--
+
+Define:
+
+`$$y_{i\cdot}=\sum_{j=1}^n{y_{ij}}, \quad \bar{y}_{i\cdot}=y_{i\cdot}/n$$`
+
+`$$y_{\cdot\cdot} = \sum_{i=1}^a\sum_{j=1}^n{y_ij}, \quad \bar{y}_{\cdot\cdot}=y_{\cdot\cdot}/N, \quad N=a\cdot n$$`
+
+--
+
+We are interested in the following test:
+
+   * `\(H_0: \tau_1=\ldots=\tau_a=0\)`
+   
+   * `\(H_1: \exists i\ |\ \tau_i\neq0\)`
+
+---
+
+# The Sum of Squares
+
+Again, we use the sum of squares equation: `\(SS_T = SS_\text{Treatments} + SS_E\)`:
+
+`$$\sum_{i=1}^a\sum_{j=1}^n({y_{ij} - \bar{y}_{\cdot\cdot})^2} = n\sum_{i=1}^a{(\bar{y}_{i\cdot} - \bar{y}_{\cdot\cdot})^2} + \sum_{i=1}^a\sum_{j=1}^n({y_{ij} - \bar{y}_{i\cdot})^2}$$`
+
+--
+
+The expected value of each of the errors can be computed (out of scope):
+
+`$$E(SS_\text{Treatments})=(a-1)\sigma^2 + n\sum_{i=1}^a{\tau_i^2}$$`
+
+`$$E(SS_E) = a(n-1)\sigma^2$$`
+
+--
+
+The degrees of freedom of each error are: 
+
+   * `\(an-1\)` for `\(SS_T\)`, 
+   * `\(a-1\)` for `\(SS_\text{Treatments}\)` 
+   * `\(a(n-1)\)` for `\(SS_E\)`
+   
+---
+
+# The ANOVA Test
+
+If the null hypothesis holds, then `\(\tau_1=\ldots=\tau_a=0\)`, and
+
+--
+
+`\(MS_\text{Treatments}=SS_\text{Treatments}/(a-1)\)` is an unbiased estimator of `\(\sigma^2\)`
+
+--
+
+The error mean square `\(MS_E=SS_E/[a(n-1)]\)` is also an unbiased estimator of `\(\sigma^2\)`
+
+--
+
+Hence the following statistic has an F-distribution
+
+`$$F_0=\frac{SS_\text{Treatments}/(a-1)}{SS_E/[a(n-1)]}=\frac{MS_\text{Treatments}}{MS_E}$$`
+
+With `\(a-1\)` and `\(a(n-1)\)` degrees of freedom.
+
+--
+
+We use an upper-tail, one-sided critical region and reject `\(H_0\)` if `\(f_0&gt;f_{\alpha, a-1, a(n-1)}\)`.
+
+---
+
+# The ANOVA Table
+
+The corresponding ANOVA table, for a Single-Factor Experiment, with a Fixed-Effects Model:
+
+| Source of Variation | Sum of Squares | df | Mean Squares | `\(F_0\)` |
+|----------------------|-----------------|-------|:------------:|---------------------|
+| Treatments | `\(SS_\text{Treatments}\)` | `\(a-1\)` | `\(MS_\text{Treatments}\)` | `\(\frac{MS_\text{Treatments}}{MS_E}\)` |
+| Error | `\(SS_E\)` | `\(a(n-1)\)` | `\(MS_E\)` |  |
+| Total | `\(SS_T\)` | `\(an-1\)` |  |  |
+
+--
+
+For an unbalanced experiment (each treatment has varying group size, `\(n_i\)`) we would have:
+
+`$$SS_T=\sum_{i=1}^a\sum_{j=1}^{n_i}{y_{ij}^2} - \frac{y_{\cdot\cdot}^2}{N}$$`
+
+`$$SS_\text{Treatments} = \sum_{i=1}^a\frac{y_{i\cdot}^2}{n_i} - \frac{y_{\cdot\cdot}^2}{N}$$`
+
+And `\(SS_E = SS_T-SS_\text{Treatment}\)`
+
+---
+
+# ANOVA Example
+
+
+```r
+mtcars2 &lt;- mtcars %&gt;% 
+   mutate(cyl_fct = factor(cyl))
+mtcars_anova &lt;- aov(formula = mpg ~ cyl_fct, data = mtcars2)
+summary(mtcars_anova)
+```
+
+```
+##             Df Sum Sq Mean Sq F value   Pr(&gt;F)    
+## cyl_fct      2  824.8   412.4    39.7 4.98e-09 ***
+## Residuals   29  301.3    10.4                     
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+--
+
+Usually, ANOVA will be followed by a multiple comparisons procedures, that will help identify which factors contribute to the variation.
+
+--
+
+There are many such multiple comparison tests. See [this book](http://www.ievbras.ru/ecostat/Kiril/R/Biblio_N/R_Eng/Bretz2011.pdf): Bretz F., Hothorn T., and Westfall P., Multiple Comparisons Using R, CRC Press, 2011.
+
+---
+
+# Dunnett's  Test
+
+The one-sided Dunnett's test takes the minimum (or maximum depending on direction) of the `\(a\)` pairwise `\(t\)` tests:
+
+`$$t_i=\frac{\bar{y}_{i\cdot}-\bar{y}_0}{s\sqrt{\frac{1}{n_i} + \frac{1}{n_0}}}$$`
+
+Where `\(y_0\)` relates to the control group (to which we are comparing the treatments), and `\(s^2\)` is the pooled variance, i.e.:
+
+`$$s^2=\sum_{i=0}^m\sum_{j=1}^{n_j}(y_{ij}-\bar{y}_{i\cdot})^2/v$$`
+
+With `\(v = \sum_{i=0}^m{n_i}-(a+1)\)` degrees of freedom.
+
+--
+
+The Dunnett's test is availble in `multcomp` like many other procedures for multiple comparisons.
+
+---
+
+# Dunnett's Test Example
+.small[
+
+```r
+suppressWarnings(suppressMessages(library(multcomp)))
+glht(mtcars_anova,
+     linfct = mcp(cyl_fct = "Dunnett"),
+     alternative = "less") %&gt;% 
+   summary()
+```
+
+```
+## 
+## 	 Simultaneous Tests for General Linear Hypotheses
+## 
+## Multiple Comparisons of Means: Dunnett Contrasts
+## 
+## 
+## Fit: aov(formula = mpg ~ cyl_fct, data = mtcars2)
+## 
+## Linear Hypotheses:
+##            Estimate Std. Error t value   Pr(&lt;t)    
+## 6 - 4 &gt;= 0   -6.921      1.558  -4.441 0.000117 ***
+## 8 - 4 &gt;= 0  -11.564      1.299  -8.905 8.54e-10 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## (Adjusted p values reported -- single-step method)
+```
+]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
