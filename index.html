@@ -14,10 +14,10 @@
 class: center, middle, inverse, title-slide
 
 # Regression, Design and Analysis of Single-Factor Experiments
-## Lecture #8
+## Lecture #8, #9
 ### Adi Sarid
 ### Tel-Aviv University
-### updated: 2019-12-14
+### updated: 2019-12-21
 
 ---
 
@@ -251,7 +251,7 @@ What do you think is the problem with trying to provide an extrapolation (fit) a
 
 Can you think of a similar example but from a different domain?
    
-<div class="countdown" id="timer_5df50227" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_5dfd509b" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -303,7 +303,7 @@ As you have probably noticed, in the bird-planes example, we used a `sky` variab
 
 --
 
-<div class="countdown" id="timer_5df50066" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_5dfd503a" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -343,7 +343,7 @@ All algorithms are greedy algorithms: look one step ahead, and choose the best c
 
 --
    
-   2. Use some accuracy measure to examine the influence of the removal of each of the variables. E.g., the Akaike Information Criteria (AIC = `\(-2\log(L) + 2df\)`)
+   2. Use some accuracy measure to examine the influence of the removal of each of the variables. E.g., the Akaike Information Criteria (AIC = `\(-2\log(L) + 2p\)`)
 
 --
    
@@ -369,7 +369,7 @@ Combination, at each iteration check both removal and addition.
 
 # Intuition for the AIC
 
-AIC = `\(-2\log(L) + 2df\)`
+AIC = `\(-2\log(L) + 2p\)`
 
 The AIC uses the likelihood `\(L\)`:
 
@@ -379,7 +379,7 @@ The AIC uses the likelihood `\(L\)`:
 
 --
 
-As the number of parameters in the model increases, the model is more prone to overfitting, hence we a penalty of `\(2df\)` (a high `\(df\)`, i.e., a lot of parameters is bad for us).
+As the number of parameters in the model increases, the model is more prone to overfitting, hence we a penalty of `\(2p\)` (a high `\(p\)`, i.e., a lot of parameters is bad for us).
 
 --
 
@@ -393,7 +393,7 @@ Other measures also exist, e.g.:
 
    * Montgomery uses the F-Statistic
    
-   * Another measure is the BIC = `\(- 2\log(L) + \log(n)df\)`
+   * Another measure is the BIC = `\(- 2\log(L) + \log(n)p\)`
 
 ---
 
@@ -529,7 +529,7 @@ step(mtcars_lm, direction = "backward")
 
 # Refresher and Recap - Test-like Exercises: Descriptive Statistics
 
-Now we are going to solve three exercises which might resemble exercises which will appear in the test.
+Now we are going to solve four exercises which might resemble exercises which will appear in the test.
 
 .small[Explain the different elements of a boxplot, i.e., in the following chart: 
 
@@ -574,6 +574,75 @@ Assume the populations are normally distributed with equal variances. Use a p-va
 
 ---
 
+# Test-like Exercises: Interpretation of a Model's Output
+
+.small[
+The `ChickWeight` dataset contains the results of a feeding experiment of 50 chicks' (`Chick`) with their tracked weight (`weight`), over a period of 21 days (`Time`), each chick was subjected to a different type of diet (`Diet`).
+
+In the following model (see bottom of slide), we are using the interaction of `Time*factor(Diet)` as one of the explanatory variables, along with `Time` as another explanatory variable. The dependent variable is the chick's `weight`.
+
+Questions:
+
+   1. The original `Diet` variable is numeric. Why are we using it in the regression model as `factor(Diet)`?
+
+   1. How many levels does the `factor(Diet)` variable has, explain.
+   
+   2. Why do we need the interaction of `Time*factor(Diet)` in the model? (why is `weight ~ Time + factor(Diet)` not enough)
+   
+   3. Which dietary method helps increase the chick's weight the most? Explain how you deduced this from the model's output.
+
+See the next slide for an additional question.
+]
+
+.tiny[
+
+```r
+chick_lm &lt;- lm(formula = weight ~ Time + Time*factor(Diet), data = ChickWeight)
+summary(chick_lm)
+```
+
+```
+## 
+## Call:
+## lm(formula = weight ~ Time + Time * factor(Diet), data = ChickWeight)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -135.425  -13.757   -1.311   11.069  130.391 
+## 
+## Coefficients:
+##                    Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         30.9310     4.2468   7.283 1.09e-12 ***
+## Time                 6.8418     0.3408  20.076  &lt; 2e-16 ***
+## factor(Diet)2       -2.2974     7.2672  -0.316  0.75202    
+## factor(Diet)3      -12.6807     7.2672  -1.745  0.08154 .  
+## factor(Diet)4       -0.1389     7.2865  -0.019  0.98480    
+## Time:factor(Diet)2   1.7673     0.5717   3.092  0.00209 ** 
+## Time:factor(Diet)3   4.5811     0.5717   8.014 6.33e-15 ***
+## Time:factor(Diet)4   2.8726     0.5781   4.969 8.92e-07 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 34.07 on 570 degrees of freedom
+## Multiple R-squared:  0.773,	Adjusted R-squared:  0.7702 
+## F-statistic: 277.3 on 7 and 570 DF,  p-value: &lt; 2.2e-16
+```
+]
+
+---
+
+# Test-like Exercises: Interpretation of a Model's Output - continued
+
+Look at the following qqplot of residuals and plot of the residuals as a function of time. 
+
+   4. Explain what are the underlying assumptions of the linear regression model.
+   
+   5. Observing the residuals' plots below, would you say that any of the linear regressions assumptions are violated? which one?
+
+&lt;img src="07-Single_factor_experiments_ANOVA_files/figure-html/qqplot and residuals-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
 # Experiment Design - Motivation
 
 With methods of hypothesis testing, we were able to discern the differences between two groups (i.e., unpaird two-sample test).
@@ -615,7 +684,7 @@ In the case of a single variable with multiple levels, this is called *single fa
 
 --
 
-Experiments invlove:
+The oricess invlove:
 
    * Conjecture - The hypothesis that motivates the experiment
    
@@ -702,7 +771,7 @@ Define:
 
 `$$y_{i\cdot}=\sum_{j=1}^n{y_{ij}}, \quad \bar{y}_{i\cdot}=y_{i\cdot}/n$$`
 
-`$$y_{\cdot\cdot} = \sum_{i=1}^a\sum_{j=1}^n{y_ij}, \quad \bar{y}_{\cdot\cdot}=y_{\cdot\cdot}/N, \quad N=a\cdot n$$`
+`$$y_{\cdot\cdot} = \sum_{i=1}^a\sum_{j=1}^n{y_{ij}}, \quad \bar{y}_{\cdot\cdot}=y_{\cdot\cdot}/N, \quad N=a\cdot n$$`
 
 --
 
@@ -859,6 +928,64 @@ glht(mtcars_anova,
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## (Adjusted p values reported -- single-step method)
+```
+]
+
+---
+
+# Verifying ANOVA assumptions
+.small[
+The ANOVA model assumes that observations are normally and independently distributed, with the same variance for each treatment. 
+
+This can be verified using hypothesis tests on the residuals, or viewing a proper plot (e.g., qqplot). The following illustrates that some assumptions are invalid in the previous example (which?) 
+]
+.tiny[
+
+```r
+mtcars2_resid &lt;- mtcars2 %&gt;% 
+   mutate(resid = mtcars_anova$residuals)
+boxplot_resid &lt;- ggplot(mtcars2_resid, aes(x = cyl_fct, y = resid)) + 
+   geom_boxplot(fill = "lightblue") +
+   theme_bw() + ggtitle("Boxplot of residuals in each cyl level")
+qqplot_resid &lt;- ggplot(mtcars2_resid, aes(sample = (resid - mean(resid))/sd(resid))) + 
+   geom_qq() + 
+   theme_bw() + ggtitle("QQ plot of residuals")
+cowplot::plot_grid(qqplot_resid, boxplot_resid)
+```
+
+&lt;img src="07-Single_factor_experiments_ANOVA_files/figure-html/verifying normality-1.png" style="display: block; margin: auto;" /&gt;
+]
+
+---
+
+# Determining the Sample Size
+
+The selection of the sample size is based on the difference we want to detect, and at what test power:
+
+`$$1-\beta = P(\text{Reject } H_0 | H_1) = P(F_0&gt;f_{1-\alpha, a-1, a(n-1)} | H_1)$$`
+
+--
+
+The effect size represents the differences in means between groups:
+
+`$$\operatorname{ES} = \frac{\mu_\text{experiment}-\mu_\text{control}}{s}$$`
+.small[
+
+```r
+pwr::pwr.anova.test(k = 3, n = NULL, f = 0.25, sig.level = 0.05, power = 0.8)
+```
+
+```
+## 
+##      Balanced one-way analysis of variance power calculation 
+## 
+##               k = 3
+##               n = 52.3966
+##               f = 0.25
+##       sig.level = 0.05
+##           power = 0.8
+## 
+## NOTE: n is number in each group
 ```
 ]
     </textarea>
