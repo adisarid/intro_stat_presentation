@@ -14,10 +14,10 @@
 class: center, middle, inverse, title-slide
 
 # Regression, Design and Analysis of Single-Factor Experiments
-## Lecture #8, #9
+## Lecture #8, #9, #10
 ### Adi Sarid
 ### Tel-Aviv University
-### updated: 2019-12-22
+### updated: 2020-01-04
 
 ---
 
@@ -251,7 +251,7 @@ What do you think is the problem with trying to provide an extrapolation (fit) a
 
 Can you think of a similar example but from a different domain?
    
-<div class="countdown" id="timer_5dfe9c9b" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_5e10f21c" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -303,7 +303,7 @@ As you have probably noticed, in the bird-planes example, we used a `sky` variab
 
 --
 
-<div class="countdown" id="timer_5dfe9ca3" style="right:0;bottom:0;" data-warnwhen="0">
+<div class="countdown" id="timer_5e10f40d" style="right:0;bottom:0;" data-warnwhen="0">
 <code class="countdown-time"><span class="countdown-digits minutes">03</span><span class="countdown-digits colon">:</span><span class="countdown-digits seconds">00</span></code>
 </div>
 
@@ -684,7 +684,7 @@ In the case of a single variable with multiple levels, this is called *single fa
 
 --
 
-The oricess invlove:
+The process invloves:
 
    * Conjecture - The hypothesis that motivates the experiment
    
@@ -791,7 +791,7 @@ Again, we use the sum of squares equation: `\(SS_T = SS_\text{Treatments} + SS_E
 
 --
 
-The expected value of each of the errors can be computed (out of scope):
+The expected value of each of the errors is given by:
 
 `$$E(SS_\text{Treatments})=(a-1)\sigma^2 + n\sum_{i=1}^a{\tau_i^2}$$`
 
@@ -991,7 +991,7 @@ pwr::pwr.anova.test(k = 3, n = NULL, f = 0.25, sig.level = 0.05, power = 0.8)
 
 ---
 
-# The Random-Effects Model
+# The Random-Effects Model (Factor with Many Levels)
 
 In cases the factor has a large number of levels, we cannot sample all of them. We would like to sample part of them, `\(a\)` levels, and draw conclusions about the entire population of factor levels.
 
@@ -1040,6 +1040,296 @@ Under the null hypothesis both sizes are identical and hence
 `$$F_0=\frac{MS_\text{Treatments}}{MS_E}$$`
 
 Is an F-distributed variable with `\(a-1\)` and `\(a(n-1)\)` degrees of freedom.
+
+---
+
+# Determining the Sample Size in the Random Effects Model
+
+We would like to find `\(n\)` for a given `\(\beta\)` (type-II error) such that:
+
+`$$1-\beta = P(\text{Reject } H_0|H_1)=P(F_0&gt;f_{\alpha, a-1, a(n-1)}|\sigma_\tau&gt;0)$$`
+
+--
+
+If `\(H_1\)` is true, then the ratio `\(\frac{MS_\text{Treatments}/(\sigma^2+n\sigma_\tau^2)}{MS_E/\sigma^2}\)` has the `\(F\)`-distribution with `\(a-1\)` and `\(a(n-1)\)` degrees of freedom. Then,
+
+`$$1-\beta = P\left(\frac{MS_\text{Treatements}}{MS_E}&gt;f_{\alpha, a-1, a(n-1)}|\sigma^2_\tau&gt;0\right) = 
+P\left(\frac{MS_\text{Treatements}}{MS_E/(1+n\sigma^2_\tau/\sigma^2)}&gt;\frac{f_{\alpha, a-1, a(n-1)}}{(1+n\sigma^2_\tau/\sigma^2)}\right)$$`
+
+--
+
+Hence,
+
+`$$1-\beta = P\left(F_{a-1, a(n-1)}&gt;\frac{f_{\alpha, a-1, a(n-1)}}{(1+n\sigma^2_\tau/\sigma^2)}\right)$$`
+
+If we assume something about `\(\sigma_\tau^2/\sigma^2\)`, we can calculate the desired `\(n\)`, using the `\(F\)` distribution function.
+
+---
+
+# Random-Effects Model - Example
+
+When manufacturing food and drugs (medication) we usually aim for having a high degree of consistency, so that different batches produce the same product (quality, concentration, etc.). 
+
+Consistency is not trivial to produce: production lines malfunction, shifts change, and machinery is sometimes replaced. 
+
+The random effects model can be used to determine if consistency of the production lines should be rejected.
+
+--
+
+## The model - Olive oil acidity 
+
+   * We are manufacturing olive oil, and each batch should have an acidity level of 0.5%
+   
+   * The factory wants to design an experiment which will test if the acidity is consistent.
+   
+   * Questions: What is our factor? What are the factor levels?
+   
+---
+
+# Example - Olive oil acidity
+
+The batch is our factor. It has many levels and therefore we treat it is a random effect.
+
+--
+
+`$$\text{acidity} = \mu + \tau_\text{batch} + \epsilon_{batch,j}$$`
+.tiny[
+
+```r
+oil_manufacturing &lt;- tibble(
+   batch = factor(c("A", "A", "A", "A", "B", "B", "B", "B", "B", 
+                    "C", "C", "C", "C", "D", "D", "E", "E")),
+   acidity = 
+      c(0.45, 0.49, 0.51, 0.50, 0.49, 0.60, 0.55, 0.41, 0.36, 
+        0.50, 0.51, 0.49, 0.48, 0.50, 0.51, 0.08, 0.20))
+
+oil_aov &lt;- aov(formula = acidity ~ batch, data = oil_manufacturing)
+summary(oil_aov)
+```
+
+```
+##             Df  Sum Sq Mean Sq F value   Pr(&gt;F)    
+## batch        4 0.21707 0.05427   13.43 0.000219 ***
+## Residuals   12 0.04851 0.00404                     
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+TukeyHSD(oil_aov)
+```
+
+```
+##   Tukey multiple comparisons of means
+##     95% family-wise confidence level
+## 
+## Fit: aov(formula = acidity ~ batch, data = oil_manufacturing)
+## 
+## $batch
+##        diff        lwr        upr     p adj
+## B-A -0.0055 -0.1414408  0.1304408 0.9999276
+## C-A  0.0075 -0.1357942  0.1507942 0.9997988
+## D-A  0.0175 -0.1579988  0.1929988 0.9974654
+## E-A -0.3475 -0.5229988 -0.1720012 0.0003058
+## C-B  0.0130 -0.1229408  0.1489408 0.9978453
+## D-B  0.0230 -0.1465480  0.1925480 0.9917589
+## E-B -0.3420 -0.5115480 -0.1724520 0.0002574
+## D-C  0.0100 -0.1654988  0.1854988 0.9997182
+## E-C -0.3550 -0.5304988 -0.1795012 0.0002507
+## E-D -0.3650 -0.5676486 -0.1623514 0.0007205
+```
+]
+
+---
+
+# Example - Olive Oil Acidity (cont.)
+
+We can use Dunnett's test to specify the exact contrasts we would like to examine:
+
+.small[
+
+```r
+library(multcomp)
+glht(oil_aov,
+     linfct = mcp(batch = c("E-A=0", "E-B=0", "E-C=0", "E-D=0"))) %&gt;% 
+   summary()
+```
+
+```
+## 
+## 	 Simultaneous Tests for General Linear Hypotheses
+## 
+## Multiple Comparisons of Means: User-defined Contrasts
+## 
+## 
+## Fit: aov(formula = acidity ~ batch, data = oil_manufacturing)
+## 
+## Linear Hypotheses:
+##            Estimate Std. Error t value Pr(&gt;|t|)    
+## E - A == 0 -0.34750    0.05506  -6.311 0.000103 ***
+## E - B == 0 -0.34200    0.05319  -6.429 0.000111 ***
+## E - C == 0 -0.35500    0.05506  -6.448  &lt; 1e-04 ***
+## E - D == 0 -0.36500    0.06358  -5.741 0.000338 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## (Adjusted p values reported -- single-step method)
+```
+]
+
+---
+
+# Randomized Complete Block Design
+
+Sometimes we have an additional factor which is not the aim of the study. For example, imagine a clinical research where `\(a\)` treatments are used in `\(b\)` medical centers.
+
+--
+
+It might be that the fact that there are varying medical centers in itself influences the results.
+
+--
+
+If the selection of treatments is ranodmized across medical centers, the experiment is called a randomized complete block design.
+
+--
+
+|  | Blocks |  |  |  |  |  |
+|------------|--------------------|--------------------|---------:|---------------------|------------------|-------------------|
+| Treatments | 1 | 2 | `\(\ldots\)` | `\(b\)` | Totals | Averages |
+| 1 | `\(y_{11}\)` | `\(y_{12}\)` | `\(\ldots\)` | `\(y_{1b}\)` | `\(y_{1\cdot}\)` | `\(\bar{y}_{1\cdot}\)` |
+| `\(\vdots\)` |  |  | `\(\vdots\)` |  |  | `\(\vdots\)` |
+| `\(a\)` | `\(y_{a1}\)` | `\(y_{a2}\)` | `\(\ldots\)` | `\(y_{ab}\)` | `\(y_{a\cdot}\)` | `\(\bar{y}_{a\cdot}\)` |
+| Totals | `\(y_{\cdot1}\)` | `\(y_{\cdot2}\)` | `\(\ldots\)` | `\(y_{\cdot b}\)` | `\(y_{\cdot\cdot}\)` |  |
+| Averages | `\(\bar{y}_{\cdot1}\)` | `\(\bar{y}_{\cdot2}\)` | `\(\ldots\)` | `\(\bar{y}_{\cdot b}\)` |  |  |
+
+---
+
+# Randomized Complete Block Design (cont.)
+
+The formula for this design is given by:
+
+$$ Y_{ij}=\mu + \tau_i + \beta_j + \epsilon_{ij}, \quad i\in\{1,\ldots,a\},j\in\{1,\ldots,b\}$$
+
+Where
+
+   * `\(\mu\)` is the overall mean.
+   
+   * `\(\tau_i\)` is the effect of the `\(i\)`th treatment.
+   
+   * `\(\beta_j\)` is the effect of the `\(j\)`th block.
+   
+   * `\(\epsilon_{ij}\)` is the error term `\(\epsilon_{ij}\sim\mathcal{N}(0,\sigma)\)`
+   
+--
+
+We assume that the treatments and blocks are fixed factors, and that they are deviations from the overall mean, so `\(\sum_{i=1}^a{\tau_i}=0\)` and `\(\sum_{j=1}^b{\beta_j}=0\)`. We test the hypothesis:
+
+   * `\(H_0: \tau_1=\ldots=\tau_a=0\)`
+   * `\(H_1: \exists i: \tau_i\neq0\)`
+
+---
+
+# Sum of Squares Identity in the Randomized Complete Block Design
+
+The sum of squares identity can be broken into
+
+`$$\sum_{i=1}^a\sum_{j=1}^b(y_{ij}-\bar{y}_{\cdot\cdot})^2 = b\sum_{i=1}^a{(\bar{y}_{i\cdot}-\bar{y}_{\cdot\cdot})^2} + a\sum_{j=1}^b{(\bar{y}_{\cdot j}-\bar{y}_{\cdot\cdot})^2}+\sum_{i,j}{(y_{ij}-\bar{y}_{\cdot j} - \bar{y}_{i\cdot} + \bar{y}_{\cdot\cdot})^2}$$`
+--
+
+Symbolically stated as
+
+`$$SS_T = SS_\text{Treatments} + SS_\text{Blocks} + SS_E$$`
+
+--
+
+With degrees of freedom:
+
+`$$ab-1 = (a-1) + (b-1) + (a-1)(b-1)$$`
+
+---
+
+# Randomized Complete Block Design Hypothesis Test
+
+Set:
+
+`$$MS_\text{Treatments} = \frac{SS_\text{Treatments}}{a-1},\quad MS_\text{Blocks} = \frac{SS_\text{Blocks}}{b-1},\quad MS_E=\frac{SS_E}{(a-1)(b-1)}$$`
+
+--
+
+The mean sum of squares is given by:
+
+   * `\(E(MS_\text{Treatments}) = \sigma^2 + \frac{b\sum_{i=1}^a{\tau_i^2}}{a-1}\)`
+   
+   * `\(E(MS_\text{Blocks}) = \sigma^2 + \frac{a\sum_{j=1}^b{\beta_j^2}}{b-1}\)`
+   
+   * `\(E(MS_E) = \sigma^2\)`
+   
+--
+
+If `\(H_0\)` is true and all `\(\tau_i=0\)` then:
+
+`$$F_0=\frac{MS_\text{Treatments}}{MS_E}$$`
+
+Is `\(F\)`-distributed with `\(a-1\)` and `\((a-1)(b-1)\)` degrees of freedom.
+
+---
+
+# Example for Randomized Complete Block Design - ANOVA
+
+An experiment was performed to determine the effect of four chemicals on the fabric strength (Example 13.5 from Montgomery).
+
+.tiny[
+
+```r
+fabric_strength &lt;- read_csv("https://raw.githubusercontent.com/adisarid/intro_statistics_R/master/lectures/data/montgomery_13.5_fabric_strength.csv", col_types = cols()) %&gt;% 
+   pivot_longer(cols = -chemical, names_to = "fabric_sample", values_to = "strength") %&gt;% 
+   mutate(chemical = factor(chemical))
+
+fabric_aov &lt;- aov(formula = strength ~ chemical + fabric_sample, data = fabric_strength)
+summary(fabric_aov)
+```
+
+```
+##               Df Sum Sq Mean Sq F value   Pr(&gt;F)    
+## chemical       3 18.044   6.015   75.89 4.52e-08 ***
+## fabric_sample  4  6.693   1.673   21.11 2.32e-05 ***
+## Residuals     12  0.951   0.079                     
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+```r
+TukeyHSD(fabric_aov)
+```
+
+```
+##   Tukey multiple comparisons of means
+##     95% family-wise confidence level
+## 
+## Fit: aov(formula = strength ~ chemical + fabric_sample, data = fabric_strength)
+## 
+## $chemical
+##      diff         lwr       upr     p adj
+## 2-1  0.62  0.09140218 1.1485978 0.0204200
+## 3-1  0.24 -0.28859782 0.7685978 0.5523215
+## 4-1  2.42  1.89140218 2.9485978 0.0000001
+## 3-2 -0.38 -0.90859782 0.1485978 0.1973362
+## 4-2  1.80  1.27140218 2.3285978 0.0000017
+## 4-3  2.18  1.65140218 2.7085978 0.0000002
+## 
+## $fabric_sample
+##                   diff        lwr          upr     p adj
+## fabric2-fabric1  0.225 -0.4094912  0.859491196 0.7881457
+## fabric3-fabric1 -1.425 -2.0594912 -0.790508804 0.0000922
+## fabric4-fabric1 -0.100 -0.7344912  0.534491196 0.9855599
+## fabric5-fabric1 -0.400 -1.0344912  0.234491196 0.3180795
+## fabric3-fabric2 -1.650 -2.2844912 -1.015508804 0.0000212
+## fabric4-fabric2 -0.325 -0.9594912  0.309491196 0.5059326
+## fabric5-fabric2 -0.625 -1.2594912  0.009491196 0.0542123
+## fabric4-fabric3  1.325  0.6905088  1.959491196 0.0001857
+## fabric5-fabric3  1.025  0.3905088  1.659491196 0.0018293
+## fabric5-fabric4 -0.300 -0.9344912  0.334491196 0.5771595
+```
+]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
